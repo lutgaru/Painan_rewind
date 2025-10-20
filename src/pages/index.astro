@@ -2,10 +2,28 @@
 import Layout from '../layouts/Layout.astro';
 import World from '../components/world';
 import painanitles from '../Data/painanitles.json'
+import Graphs from '../components/graphs.jsx';
 // Welcome to Astro! Wondering what to do next? Check out the Astro documentation at https://docs.astro.build
 // Don't want to use any of this? Delete everything in this file, the `assets`, `components`, and `layouts` directories, and start fresh.
 ---
 
 <Layout>
-	<World tle={painanitles[0]} client:only="react"/>
+  <div class="relative w-screen h-screen overflow-hidden">
+    {/* Background layer */}
+    <div class="absolute inset-0 -z-100">
+      <World tle={painanitles[0]} client:only="react"/>
+    </div>
+    
+    {/* Content layer */}
+    <div class="relative z-10">
+      <Graphs client:only="react" />
+    </div>
+  </div>
 </Layout>
+
+<style>
+  /* Ensure the container takes full viewport */
+  :root {
+    overflow-x: hidden;
+  }
+</style>

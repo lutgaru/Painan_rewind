@@ -1,58 +1,12 @@
 import React from 'react';
 import * as decoder from './decoder'
-import painaniframes from '../data/painani.json';
+import moment from 'moment';
+import painaniframes from '../data/painanidata.json';
 
 interface framesatnogs {
     [key: string]: any  
     frame:string,
     timestamp:string
-}
-
-
-async function getPainanidata(numberpage: number):Promise<Array<framesatnogs>> {
-
-    let numberstr=numberpage===0?'':'&page='+numberpage
-    try {
-        //eslint-disable-next-line
-        let response = await fetch('/lastdata/uc?export=view&id=1RpglC6UyQ8UBi_VmRgJG3wsoQH4Omvps')
-        .then((response) => {
-            return response.text();
-         })
-         .then((responseStr) => {
-            console.log(responseStr);
-         })
-        //console.log(response)  
-        //let responseJson = await response.json();
-        
-        
-        //console.log(responseJson)
-        return []//responseJson;
-       } catch(error) {
-        console.error(error);
-      }
-      return []
-}
-
-async function getPainanidataRange(numberpages: number){
-    var allbeacons: object=[]
-    for (let i=0;i<numberpages;i++){
-        let data=await getPainanidata(i)
-        if(Symbol.iterator in Object(data))
-            Array.prototype.push.apply(allbeacons,data);
-    }
-    console.log(allbeacons)
-    localStorage.setItem('frames', JSON.stringify(allbeacons));
-}
-
-async function updatetimes(frames:Array<framesatnogs>) {
-    let data=await getPainanidata(0)
-        //Array.prototype.push.apply(frames,data);
-
-    for(let x of data){
-        if(!frames.includes(x)){
-            frames.push(x)
-        }
-    }
 }
 
 function decodeFrames(frames:Array<framesatnogs>){
@@ -98,4 +52,53 @@ async function getListsofValues(){
 
 }
 
-export {getPainanidata,getListsofValues}
+async function getdatagraphs() {
+            let listofvals = await getListsofValues()
+            let tempshorts = []
+            let voltshors = []
+            let currentshors = []
+            let gyrolarge = []
+            let chargecapacity = []
+            let batvolts = []
+
+            //console.log(listofvals.shorts)
+
+            for (const e in listofvals.shorts) {
+                //smpt[e]=listofvals.shorts[e].SMPST
+                tempshorts.push({ 'name': moment(e).valueOf(), 'smpt': listofvals.shorts[e].SMPST, 'pat': listofvals.shorts[e].PAT })
+                voltshors.push({ 'name': moment(e).valueOf(), 'v3v3': listofvals.shorts[e].V3V3, 'v5v': listofvals.shorts[e].V5V })
+                currentshors.push({ 'name': moment(e).valueOf(), 'c3v3': listofvals.shorts[e].C3V3, 'c5v': listofvals.shorts[e].C5V })
+
+
+            }
+            //console.log(listofvals)
+            for (const e in listofvals.large) {
+                //smpt[e]=listofvals.shorts[e].SMPST
+                gyrolarge.push({ 'name': moment(e).valueOf(), 'gyrox': listofvals.large[e].GyroX, 'gyroy': listofvals.large[e].GyroY, 'gyroz': listofvals.large[e].GyroZ })
+                chargecapacity.push({ 'name': moment(e).valueOf(), 'BankChar1': listofvals.large[e].BankChar1, 'BankChar2': listofvals.large[e].BankChar2 })
+                batvolts.push({ 'name': moment(e).valueOf(), 'BankVolt1': listofvals.large[e].BankVolt1, 'BankVolt2': listofvals.large[e].BankVolt2 })
+            }
+
+            return {
+                'tempshorts': tempshorts.sort(function (a, b) {
+                    return a.name - b.name;
+                }),
+                'voltshors': voltshors.sort(function (a, b) {
+                    return a.name - b.name;
+                }),
+                'currentshors': currentshors.sort(function (a, b) {
+                    return a.name - b.name;
+                }),
+                'gyrolarge': gyrolarge.sort(function (a, b) {
+                    return a.name - b.name;
+                }),
+                'chargecapacity': chargecapacity.sort(function (a, b) {
+                    return a.name - b.name;
+                }),
+                'batvolts': batvolts.sort(function (a, b) {
+                    return a.name - b.name;
+                }),
+            }
+        }
+
+export {getListsofValues,getdatagraphs};
