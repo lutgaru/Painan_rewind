@@ -18,8 +18,8 @@ const formatTime = (ms) => {
 
 const TimelineSlider = () => {
   // 1. Base Time Range Definition (2023-2025)
-  const initialStartTime = useMemo(() => new Date('2023-01-01T00:00:00Z').getTime(), []);
-  const initialEndTime = useMemo(() => new Date('2025-12-31T23:59:59Z').getTime(), []);
+  const initialStartTime = useMemo(() => new Date('2020-01-01T00:00:00Z').getTime(), []);
+  const initialEndTime = useMemo(() => new Date('2023-01-30T23:59:59Z').getTime(), []);
   const initialCurrentTime = useMemo(() => new Date('2024-01-01T12:00:00Z').getTime(), []);
 
   // 2. States for Sliders
