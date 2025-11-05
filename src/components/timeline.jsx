@@ -1,7 +1,7 @@
 import React, { useState, useEffect, useCallback } from 'react';
 import { Range } from 'react-range';
 import { useStore } from '@nanostores/react';
-import { timeDataStore } from '../scripts/timeData.ts';
+import { timeDataStore, initialStartTime, initialEndTime} from '../scripts/timeData.ts';
 
 // Utility Functions
 const formatTime = (ms) => {
@@ -37,17 +37,18 @@ const TimelineSlider = () => {
   // Derived values
   const [startTimeMs, endTimeMs] = rangeValues;
 
-  // Update local state when store changes
+  // Update global store when local state changes
   useEffect(() => {
-    setRangeValues([storeStartTime, storeEndTime]);
-    setCurrentTimeMs(storeDate);
-  }, [storeStartTime, storeEndTime, storeDate]);
+    timeDataStore.set({
+      date: currentTimeMs,
+      range: rangeValues,
+    });
+  }, [currentTimeMs, rangeValues]);
 
   // Handlers
   const handleRangeChange = useCallback((values) => {
     const [newStart, newEnd] = values;
     setRangeValues(values);
-
     // Adjust current time if outside new range
     setCurrentTimeMs(current =>
       Math.min(Math.max(current, newStart), newEnd)
@@ -61,7 +62,7 @@ const TimelineSlider = () => {
   }, [startTimeMs, endTimeMs]);
 
   const handleReset = useCallback(() => {
-    setRangeValues([storeStartTime, storeEndTime]);
+    setRangeValues([initialStartTime, initialEndTime]);
     setCurrentTimeMs(storeDate);
     setIsPlaying(false);
   }, [storeStartTime, storeEndTime, storeDate]);
@@ -118,8 +119,8 @@ const TimelineSlider = () => {
         <div className="flex-1 w-full space-y-4">
           <Range
             step={HOUR_IN_MS}
-            min={storeStartTime}
-            max={storeEndTime}
+            min={initialStartTime}
+            max={initialEndTime}
             values={rangeValues}
             onChange={handleRangeChange}
             renderTrack={({ props, children }) => {
@@ -133,8 +134,8 @@ const TimelineSlider = () => {
                   <div
                     className="absolute h-2 bg-blue-500 rounded-full"
                     style={{
-                      left: `${((startTimeMs - storeStartTime) / (storeEndTime - storeStartTime)) * 100}%`,
-                      width: `${((endTimeMs - startTimeMs) / (storeEndTime - storeStartTime)) * 100}%`,
+                      left: `${((startTimeMs - initialStartTime) / (initialEndTime - initialStartTime)) * 100}%`,
+                      width: `${((endTimeMs - startTimeMs) / (initialEndTime - initialStartTime)) * 100}%`,
                     }}
                   />
                   {children}
