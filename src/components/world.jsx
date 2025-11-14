@@ -1,8 +1,11 @@
 import Globe from 'react-globe.gl';
-import React from 'react';
+import React, { use } from 'react';
 import tierra from '../assets/8k_earth_daymap.jpg'
 import * as THREE from 'three';
-import { twoline2satrec,gstime,propagate,eciToGeodetic,radiansToDegrees } from 'satellite.js';
+import { useStore } from '@nanostores/react';
+import { timeDataStore } from '../scripts/timeData.ts';
+import { getTLEbyDate } from '../scripts/tleManager.ts'
+import { twoline2satrec, gstime, propagate, eciToGeodetic, radiansToDegrees } from 'satellite.js';
 
 // var THREE=require('three')
 
@@ -42,36 +45,33 @@ function julianToDate(jd) {
 
 const World = (props) => {
 
+  const $timeDataStore = useStore(timeDataStore);
+  const { date: storeDate } = $timeDataStore;
+
   const globeEl = useRef();
   const [satData, setSatData] = useState();
   const [orbitPaths, setOrbitPaths] = useState([]);
   const [globeRadius, setGlobeRadius] = useState();
-  const [time, setTime] = useState(new Date());
-
-  // useEffect(() => {
-  //   // time ticker
-  //   (function frameTicker() {
-  //     requestAnimationFrame(frameTicker);
-  //     setTime(time => new Date());
-  //   })();
-  // }, []);
+  const [time, setTime] = useState(new Date(storeDate));
 
   useEffect(() => {
-    console.log('Received TLE:', props.tle);
-    const tle = props.tle;
-
+    // This effect detects changes from the timeDataStore and updates the local time state.
+    setTime(new Date(storeDate));
+    const tle = getTLEbyDate(new Date(storeDate));
+    console.log('Selected TLE for date', new Date(storeDate), ':', tle.TLE_LINE0, tle.TLE_LINE1, tle.TLE_LINE2);
     // Create satrec object
-    const satrec = twoline2satrec(tle['TLE_LINE1'], tle['TLE_LINE2']);
+    const satrec = twoline2satrec(tle.TLE_LINE1, tle.TLE_LINE2);
 
     // Create satellite data object with ID
     const satDataObj = {
       satrec: satrec,
-      id: tle['TLE_LINE0']
+      id: tle.TLE_LINE0
     };
 
     // Set as array since objectsData expects array
     setSatData([satDataObj]);
-  }, [props.tle]);
+  }, [storeDate]);
+
 
   const objectsData = useMemo(() => {
     if (!satData) return [];
