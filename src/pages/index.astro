@@ -2,10 +2,9 @@
 import Layout from '../layouts/Layout.astro';
 import World from '../components/world';
 import painanitles from '../Data/painanitles.json'
-import Graphs from '../components/graphs.jsx';
 import Timeline from '../components/timeline.jsx';
-// Welcome to Astro! Wondering what to do next? Check out the Astro documentation at https://docs.astro.build
-// Don't want to use any of this? Delete everything in this file, the `assets`, `components`, and `layouts` directories, and start fresh.
+import ShortPlots from '../components/ShortPlots.jsx';
+import LongPlots from '../components/LongPlots.jsx';
 ---
 
 <Layout>
@@ -17,7 +16,8 @@ import Timeline from '../components/timeline.jsx';
 
     {/* Content layer */}
     <div class="relative z-10">
-    <Graphs client:only="react" />
+    <ShortPlots client:only="react" />
+    <LongPlots client:only="react" />
 	  <Timeline client:only="react" />
     </div>
     </div>
