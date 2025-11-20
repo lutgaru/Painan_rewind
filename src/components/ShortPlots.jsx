@@ -3,17 +3,23 @@ import { LineChart, Line, XAxis, YAxis, CartesianGrid, Tooltip, Legend, Responsi
 import * as decoder from '../scripts/decoder.ts'
 // import styles from '../styles/graphs.css'
 import moment from 'moment';
-import {getdatagraphs} from '../scripts/downloaders.ts'
+import {getdatagraphsShort} from '../scripts/downloaders.ts'
+import { useStore } from '@nanostores/react';
+import { timeDataStore } from '../scripts/timeData.ts';
 
 function ShortPlots(props) {
+
+    const $timeDataStore = useStore(timeDataStore);
+    const {range: storeRange} = $timeDataStore;
     
     const [listofvals, setlistofvals]=useState({})
-    //console.log(decoder.decoder_short_beacon('8A82A4A89040E0A6A082868A406103F0000003E6080850E903510006050C'))
 
     useEffect(() => {
+        console.log('Store date changed:', storeRange);
+        
         const fetchData = async () => {
             try {
-                const data = await getdatagraphs();
+                const data = await getdatagraphsShort(storeRange[0], storeRange[1]);
                 setlistofvals(data);
                 console.log('List of values:', data);
             } catch (error) {
@@ -24,11 +30,7 @@ function ShortPlots(props) {
         // Call the async function
         fetchData();
 
-        return () => {
-            // Cleanup code if needed
-        };
-        //console.log('Decoded data:', decoded);
-      },[]);
+      },[storeRange]);
     
     
     return (
