@@ -69,20 +69,30 @@ async function getListsofValues() {
     return decodeFrames(frames);
 }
 
-async function getListsofValuesRange(starttime: number, endtime: number) {
+async function getListsofValuesRange(starttime: number, endtime: number, decimationFactor: number = 1) {
     const frames = frames_short as Array<Frame>;
 
-    const filteredFrames = frames.filter(frame => {
+    let filteredFrames = frames.filter(frame => {
         const frameTimestamp = moment(frame.date).valueOf();
         return frameTimestamp >= starttime && frameTimestamp <= endtime;
     });
-    // console.log(filteredFrames)
+
+    // Decimate the array if a factor greater than 1 is provided
+    if (decimationFactor > 1) {
+        console.log(`Original samples: ${filteredFrames.length}. Decimating by a factor of ${decimationFactor}.`);
+        filteredFrames = filteredFrames.filter((_, index) => index % decimationFactor === 0);
+        console.log(`New sample count: ${filteredFrames.length}.`);
+    }
+
     const filteredListValues = decodeShortFrames(filteredFrames);
     return filteredListValues;
 }
 
 async function getdatagraphsShort(starttime: number, endtime: number) {
-    let listofvals = await getListsofValuesRange(starttime, endtime)
+    const desiredSamples = 1000; // Target number of samples
+    const initialFrames = frames_short.filter(f => { const ts = moment(f.date).valueOf(); return ts >= starttime && ts <= endtime; });
+    const decimationFactor = initialFrames.length > desiredSamples ? Math.ceil(initialFrames.length / desiredSamples) : 1;
+    let listofvals = await getListsofValuesRange(starttime, endtime, decimationFactor)
     console.log(listofvals)
     let tempshorts = []
     let voltshors = []
@@ -157,4 +167,4 @@ async function getdatagraphs() {
     }
 }
 
-export { getListsofValues, getdatagraphs, getdatagraphsShort }
+export { getListsofValues, getdatagraphs, getdatagraphsShort };
