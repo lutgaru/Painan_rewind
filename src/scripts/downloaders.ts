@@ -1,15 +1,7 @@
-import React from 'react';
 import * as decoder from './decoder'
 import moment from 'moment';
-import painaniframes from '../data/painanidata.json';
 import frames_short from '../data/frames_short.json';
 import frames_long from '../data/frames_long.json';
-
-interface framesatnogs {
-    [key: string]: any
-    frame: string,
-    timestamp: string
-}
 
 interface Frame {
     date: string;

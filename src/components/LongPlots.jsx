@@ -1,6 +1,5 @@
-import React, { useEffect, useState } from 'react';
+import  { useEffect, useState } from 'react';
 import { LineChart, Line, XAxis, YAxis, CartesianGrid, Tooltip, Legend, ResponsiveContainer, AreaChart, Area,} from 'recharts';
-import * as decoder from '../scripts/decoder.ts'
 import moment from 'moment';
 import {getdatagraphsLong} from '../scripts/downloaders.ts'
 import { useStore } from '@nanostores/react';
