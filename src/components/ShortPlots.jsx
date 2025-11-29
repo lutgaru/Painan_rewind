@@ -1,7 +1,5 @@
 import React, { useEffect, useState } from 'react';
-import { LineChart, Line, XAxis, YAxis, CartesianGrid, Tooltip, Legend, ResponsiveContainer, AreaChart, Area,} from 'recharts';
-import * as decoder from '../scripts/decoder.ts'
-// import styles from '../styles/graphs.css'
+import { XAxis, YAxis, CartesianGrid, Tooltip, Legend, ResponsiveContainer, AreaChart, Area,} from 'recharts';
 import moment from 'moment';
 import {getdatagraphsShort} from '../scripts/downloaders.ts'
 import { useStore } from '@nanostores/react';
@@ -21,7 +19,7 @@ function ShortPlots(props) {
             try {
                 const data = await getdatagraphsShort(storeRange[0], storeRange[1]);
                 setlistofvals(data);
-                console.log('List of values:', data);
+                // console.log('List of values:', data);
             } catch (error) {
                 console.error('Error fetching data:', error);
             }
@@ -31,7 +29,6 @@ function ShortPlots(props) {
         fetchData();
 
       },[storeRange]);
-    
     
     return (
         <div>

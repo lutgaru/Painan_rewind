@@ -1,18 +1,21 @@
-import React, { useEffect, useState } from 'react';
+import  { useEffect, useState } from 'react';
 import { LineChart, Line, XAxis, YAxis, CartesianGrid, Tooltip, Legend, ResponsiveContainer, AreaChart, Area,} from 'recharts';
-import * as decoder from '../scripts/decoder.ts'
 import moment from 'moment';
-import {getdatagraphs} from '../scripts/downloaders.ts'
+import {getdatagraphsLong} from '../scripts/downloaders.ts'
+import { useStore } from '@nanostores/react';
+import { timeDataStore } from '../scripts/timeData.ts';
 
 function LongPlots(props) {
-    
+
+    const $timeDataStore = useStore(timeDataStore);
+    const {range: storeRange} = $timeDataStore;
     const [listofvals, setlistofvals]=useState({})
     //console.log(decoder.decoder_short_beacon('8A82A4A89040E0A6A082868A406103F0000003E6080850E903510006050C'))
 
     useEffect(() => {
         const fetchData = async () => {
             try {
-                const data = await getdatagraphs();
+                const data = await getdatagraphsLong(storeRange[0], storeRange[1]);
                 setlistofvals(data);
                 console.log('List of values:', data);
             } catch (error) {
@@ -22,12 +25,7 @@ function LongPlots(props) {
 
         // Call the async function
         fetchData();
-
-        return () => {
-            // Cleanup code if needed
-        };
-        //console.log('Decoded data:', decoded);
-      },[]);
+      },[storeRange]);
     
     
     return (
