@@ -31,19 +31,28 @@ const TimelineSlider = () => {
 
   // Local state
   const [rangeValues, setRangeValues] = useState([storeStartTime, storeEndTime]);
+  const [debouncedRange, setDebouncedRange] = useState(rangeValues);
   const [currentTimeMs, setCurrentTimeMs] = useState(storeDate);
   const [isPlaying, setIsPlaying] = useState(false);
 
   // Derived values
   const [startTimeMs, endTimeMs] = rangeValues;
 
+  // Debounce range updates to avoid overloading store listeners
+  useEffect(() => {
+    const timeoutId = setTimeout(() => {
+      setDebouncedRange(rangeValues);
+    }, 500);
+    return () => clearTimeout(timeoutId);
+  }, [rangeValues]);
+
   // Update global store when local state changes
   useEffect(() => {
     timeDataStore.set({
       date: currentTimeMs,
-      range: rangeValues,
+      range: debouncedRange,
     });
-  }, [currentTimeMs, rangeValues]);
+  }, [currentTimeMs, debouncedRange]);
 
   // Handlers
   const handleRangeChange = useCallback((values) => {
