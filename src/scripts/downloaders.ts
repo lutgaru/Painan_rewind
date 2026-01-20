@@ -49,7 +49,7 @@ async function getListsofValuesRange(starttime: number, endtime: number, decimat
 }
 
 async function getdatagraphsShort(starttime: number, endtime: number) {
-    const desiredSamples = 1000; // Target number of samples
+    const desiredSamples = 100; // Target number of samples
     const initialFrames = frames_short.filter(f => { const ts = moment(f.date).valueOf(); return ts >= starttime && ts <= endtime; });
     const decimationFactor = initialFrames.length > desiredSamples ? Math.ceil(initialFrames.length / desiredSamples) : 1;
     let listofvals = await getListsofValuesRange(starttime, endtime, decimationFactor, FrameType.Short);
@@ -77,7 +77,7 @@ async function getdatagraphsShort(starttime: number, endtime: number) {
 }
 
 async function getdatagraphsLong(starttime: number, endtime: number) {
-    const desiredSamples = 1000; // Target number of samples
+    const desiredSamples = 100; // Target number of samples
     const initialFrames = frames_long.filter(f => { const ts = moment(f.date).valueOf(); return ts >= starttime && ts <= endtime; });
     const decimationFactor = initialFrames.length > desiredSamples ? Math.ceil(initialFrames.length / desiredSamples) : 1;
     let listofvals = await getListsofValuesRange(starttime, endtime, decimationFactor, FrameType.Long);
