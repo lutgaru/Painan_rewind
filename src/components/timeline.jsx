@@ -23,7 +23,7 @@ const snapToStep = (value, step, min) =>
 
 const HOUR_IN_MS = 1000 * 60 * 60;
 const PLAY_SPEED = 50000; // Speed factor for playback
-const UPDATE_INTERVAL = 100; // Update interval in ms
+const UPDATE_INTERVAL = 10; // Update interval in ms
 
 const TimelineSlider = () => {
   // Get store data

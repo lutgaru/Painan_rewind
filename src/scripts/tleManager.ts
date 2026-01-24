@@ -2,7 +2,7 @@ import painanitles from '../Data/painanitles.json';
 
 // Caching mechanism to improve performance
 let lastSelectedTle: { tle: any; targetTime: number } | null = null;
-const CACHE_THRESHOLD_MS = 24 * 60 * 60 * 1000; // 1 day
+const CACHE_THRESHOLD_MS = 7 * 24 * 60 * 60 * 1000; // 7 day
 
 export function getTLEbyDate(date: Date) {
   // Convert input date to timestamp for comparison
@@ -26,5 +26,6 @@ export function getTLEbyDate(date: Date) {
   // 5. Update the cache with the newly found TLE and the current target time
   lastSelectedTle = { tle: bestTle, targetTime: targetTime };
 
+  console.log('Selected TLE for date', new Date(date), ':', bestTle.TLE_LINE0, bestTle.TLE_LINE1, bestTle.TLE_LINE2);
   return bestTle;
 }
