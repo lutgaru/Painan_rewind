@@ -53,12 +53,14 @@ const World = (props) => {
   const [orbitPaths, setOrbitPaths] = useState([]);
   const [globeRadius, setGlobeRadius] = useState();
   const [time, setTime] = useState(new Date(storeDate));
+  const [satPosition, setSatPosition] = useState(null);
+  const lastOrbitUpdate = useRef(0);
+
 
   useEffect(() => {
     // This effect detects changes from the timeDataStore and updates the local time state.
     setTime(new Date(storeDate));
     const tle = getTLEbyDate(new Date(storeDate));
-    console.log('Selected TLE for date', new Date(storeDate), ':', tle.TLE_LINE0, tle.TLE_LINE1, tle.TLE_LINE2);
     // Create satrec object
     const satrec = twoline2satrec(tle.TLE_LINE1, tle.TLE_LINE2);
 
@@ -69,51 +71,60 @@ const World = (props) => {
     };
 
     // Set as array since objectsData expects array
+    if(      !satData || satData[0].id !== satDataObj.id    )
+      {
     setSatData([satDataObj]);
+    console.log('TLE used for simulation:', tle.TLE_LINE0, tle.TLE_LINE1, tle.TLE_LINE2);
+    }
   }, [storeDate]);
 
+  useEffect(() => {
+    if (!satData) return;
+
+    // Fast update for satellite position
+    const gmst = gstime(time);
+    const eci = propagate(satData[0].satrec, time);
+    if (eci.position) {
+      const gdPos = eciToGeodetic(eci.position, gmst);
+      setSatPosition({
+        lat: radiansToDegrees(gdPos.latitude),
+        lng: radiansToDegrees(gdPos.longitude),
+        alt: gdPos.height / EARTH_RADIUS_KM
+      });
+    }
+
+    // Slower update for orbit path
+    const now = time.getTime();
+    if (now - lastOrbitUpdate.current > 1000) { // Update every 1 second
+      lastOrbitUpdate.current = now;
+
+      let OrbitPaths = []
+      let tiempo = new Date(time.getTime() - 30 * 60 * 1000)
+      let propi = {
+        "id": satData[0].id,
+      }
+      let points = []
+      for (let x = 0; x < 150; x++) {
+        let eci = propagate(satData[0].satrec, tiempo);
+        let gmst = gstime(tiempo);
+        let gdPos = eciToGeodetic(eci.position, gmst);
+        tiempo = new Date(tiempo.getTime() + (x * 600))
+        points.push([
+          radiansToDegrees(gdPos.latitude),
+          radiansToDegrees(gdPos.longitude),
+          (gdPos.height / EARTH_RADIUS_KM) / 10])
+      }
+      OrbitPaths.push({ points, propi })
+      setOrbitPaths(OrbitPaths);
+    }
+
+  }, [satData, time]);
 
   const objectsData = useMemo(() => {
-    if (!satData) return [];
+    if (!satPosition || !satData) return [];
+    return [{ ...satData[0], ...satPosition }];
+  }, [satPosition, satData]);
 
-    // Update satellite positions
-    const gmst = gstime(time);
-    return satData.map(d => {
-      const eci = propagate(d.satrec, time);
-      if (eci.position) {
-        const gdPos = eciToGeodetic(eci.position, gmst);
-        const lat = radiansToDegrees(gdPos.latitude);
-        const lng = radiansToDegrees(gdPos.longitude);
-        const alt = gdPos.height / EARTH_RADIUS_KM;
-        //console.log(alt)
-
-        let OrbitPaths = []
-        let tiempo = new Date(time.getTime() - 30 * 60 * 1000)
-        let propi = {
-          "id": satData[0].id,
-        }
-        let points = []
-        for (let x = 0; x < 150; x++) {
-          let eci = propagate(satData[0].satrec, tiempo);
-          let gmst = gstime(tiempo);
-          let gdPos = eciToGeodetic(eci.position, gmst);
-          tiempo = new Date(tiempo.getTime() + (x * 600))
-          points.push([
-            radiansToDegrees(gdPos.latitude),
-            radiansToDegrees(gdPos.longitude),
-            (gdPos.height / EARTH_RADIUS_KM) / 10])
-        }
-        //console.log(points)
-        OrbitPaths.push({ points, propi })
-        //console.log(OrbitPaths)
-
-        setOrbitPaths(OrbitPaths)
-
-        return { ...d, lat, lng, alt };
-      }
-      return d;
-    });
-  }, [satData, time]);
 
   const satObject = useMemo(() => {
     if (!globeRadius) return undefined;
@@ -127,6 +138,19 @@ const World = (props) => {
     setGlobeRadius(globeEl.current.getGlobeRadius());
     globeEl.current.pointOfView({ altitude: 3.5 });
   }, []);
+
+  useEffect(() => {
+    if (globeEl.current && satPosition) {
+      const { lat, lng } = satPosition;
+      const pov = globeEl.current.pointOfView();
+      // Center view on satellite
+      globeEl.current.pointOfView({
+        lat,
+        lng,
+        altitude: pov.altitude
+      });
+    }
+  }, [satPosition]);
 
 
 
