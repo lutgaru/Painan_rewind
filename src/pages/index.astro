@@ -1,26 +1,35 @@
 ---
-import Layout from '../layouts/Layout.astro';
-import World from '../components/world';
-import painanitles from '../Data/painanitles.json'
-import Timeline from '../components/timeline.jsx';
-import ShortPlots from '../components/ShortPlots.jsx';
-import LongPlots from '../components/LongPlots.jsx';
+import Layout from "../layouts/Layout.astro";
+import World from "../components/world";
+import painanitles from "../Data/painanitles.json";
+import Timeline from "../components/timeline.jsx";
+import ShortPlots from "../components/ShortPlots.jsx";
+import LongPlots from "../components/LongPlots.jsx";
 ---
 
 <Layout>
   <div class="relative w-screen h-screen overflow-hidden">
-    {/* Background layer */}
-    <div class="absolute inset-0 -z-100">
-      <World tle={painanitles[0]} client:only="react"/>
+    
+    <div class="absolute inset-0 z-0">
+      <World tle={painanitles[0]} client:only="react" />
     </div>
 
-    {/* Content layer */}
-    <div class="relative z-10">
-    <ShortPlots client:only="react" />
-    <LongPlots client:only="react" />
-	  <Timeline client:only="react" />
+    <div class="relative z-10 h-full w-full pointer-events-none">
+      
+      <div class="pointer-events-auto lg:w-2/5">
+        <ShortPlots client:only="react" />
+      </div>
+
+      <div class="pointer-events-auto">
+        <LongPlots client:only="react" />
+      </div>
+
+      <div class="absolute bottom-0 w-full pointer-events-auto">
+        <Timeline client:only="react" />
+      </div>
+      
     </div>
-    </div>
+  </div>
 </Layout>
 
 <style>
