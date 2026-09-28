@@ -1,0 +1,33 @@
+---
+import mission from "../../data/mission.json";
+---
+<section id="hitos" class="border-t border-white/10">
+  <div class="mx-auto max-w-6xl px-4 py-14">
+    <h2 class="text-2xl font-black text-blue-300">Hitos del Voyage</h2>
+    <ol class="mt-6 space-y-4">
+      {mission.milestones.map((m) => (
+        <li class="flex gap-4 rounded-2xl border border-white/10 bg-gray-900/60 p-4">
+          <span class="telemetry-mono h-fit shrink-0 rounded-full bg-blue-600/20 px-3 py-1 text-xs font-bold text-blue-300">{m.date}</span>
+          <div>
+            <h3 class="font-bold">{m.title}</h3>
+            <p class="text-sm text-gray-400">{m.text}</p>
+          </div>
+        </li>
+      ))}
+    </ol>
+    <div class="mt-8 rounded-2xl border border-white/10 bg-gray-900/60 p-5">
+      <h3 class="telemetry-mono text-xs font-bold tracking-widest text-gray-400">FUENTES</h3>
+      <ul class="mt-2 flex flex-wrap gap-x-6 gap-y-2 text-sm">
+        {mission.sources.map((s) => (
+          <li><a href={s.url} target="_blank" rel="noreferrer" class="text-blue-300 underline hover:text-blue-200">{s.label} ↗</a></li>
+        ))}
+      </ul>
+    </div>
+  </div>
+</section>
+<footer class="border-t border-white/10 bg-[#04060c]">
+  <div class="telemetry-mono mx-auto flex max-w-6xl flex-wrap items-center justify-between gap-2 px-4 py-6 text-xs text-gray-500">
+    <span>PAINANI-1 · Mission Voyage — fundación construida sobre Painan Rewind (Astro + React + satellite.js)</span>
+    <span>CICESE · SEDENA · UDEFA — página de archivo, misión finalizada</span>
+  </div>
+</footer>

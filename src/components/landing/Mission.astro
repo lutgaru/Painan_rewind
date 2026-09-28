@@ -1,0 +1,45 @@
+---
+import mission from "../../data/mission.json";
+---
+<section id="mision" class="border-t border-white/10 bg-[#070c16]">
+  <div class="mx-auto grid max-w-6xl gap-8 px-4 py-14 lg:grid-cols-2">
+    <div>
+      <h2 class="text-2xl font-black text-blue-300">La misión</h2>
+      <p class="mt-3 leading-relaxed text-gray-300">
+        {mission.description}
+      </p>
+      <p class="mt-3 leading-relaxed text-gray-400">
+        <strong class="text-white">Propósito:</strong> {mission.purpose}
+      </p>
+      <div class="mt-5 rounded-2xl border border-white/10 bg-gray-900/70 p-4">
+        <h3 class="telemetry-mono text-xs font-bold tracking-widest text-green-400">LANZAMIENTO · MAKE IT RAIN</h3>
+        <ul class="mt-2 space-y-1 text-sm text-gray-300">
+          <li><strong>Fecha:</strong> 29 de junio de 2019, 04:30 UTC</li>
+          <li><strong>Vehículo:</strong> {mission.launch.vehicle}</li>
+          <li><strong>Sitio:</strong> {mission.launch.site}</li>
+          <li><strong>Rideshare:</strong> {mission.launch.rideshare}</li>
+        </ul>
+        <p class="mt-2 text-xs text-gray-500">{mission.launch.note}</p>
+      </div>
+    </div>
+    <div class="rounded-2xl border border-white/10 bg-gray-900/70 p-5">
+      <h3 class="telemetry-mono text-xs font-bold tracking-widest text-blue-300">EL ARCHIVO REWIND EN ESTA PÁGINA</h3>
+      <div class="mt-3 grid grid-cols-3 gap-3 text-center">
+        <div class="rounded-xl bg-white/5 p-3">
+          <p class="telemetry-mono text-2xl font-black text-green-400">{mission.archive.shortBeacons.toLocaleString("es-MX")}</p>
+          <p class="text-xs text-gray-400">balizas cortas</p>
+        </div>
+        <div class="rounded-xl bg-white/5 p-3">
+          <p class="telemetry-mono text-2xl font-black text-blue-300">{mission.archive.longBeacons.toLocaleString("es-MX")}</p>
+          <p class="text-xs text-gray-400">balizas largas</p>
+        </div>
+        <div class="rounded-xl bg-white/5 p-3">
+          <p class="telemetry-mono text-2xl font-black text-purple-300">{mission.archive.tleCount.toLocaleString("es-MX")}</p>
+          <p class="text-xs text-gray-400">TLEs</p>
+        </div>
+      </div>
+      <p class="mt-3 text-sm text-gray-400">Cobertura: <strong class="text-white">{mission.archive.coverage}</strong></p>
+      <p class="mt-1 text-xs leading-relaxed text-gray-500">{mission.archive.note}</p>
+    </div>
+  </div>
+</section>

@@ -1,0 +1,43 @@
+---
+// Gallery scaffold: drop SAT photos into src/assets/gallery/* or public/gallery/*
+// Build-time glob picks up anything placed in src/assets/gallery.
+const localImages = import.meta.glob("../../assets/gallery/*.{jpg,jpeg,png,webp}", { eager: true, query: "?url", import: "default" }) as Record<string, string>;
+const entries = Object.entries(localImages);
+---
+<section id="fotos" class="border-t border-white/10 bg-[#070c16]">
+  <div class="mx-auto max-w-6xl px-4 py-14">
+    <div class="flex flex-wrap items-end justify-between gap-3">
+      <div>
+        <h2 class="text-2xl font-black text-blue-300">Fotos tomadas desde el SAT</h2>
+        <p class="mt-2 max-w-2xl text-gray-400">
+          Galería del módulo de 4 sensores en espectro visible. Si aún no ves fotos aquí,
+          coloca los archivos en <code class="telemetry-mono rounded bg-white/10 px-1">src/assets/gallery/</code> (o <code class="telemetry-mono rounded bg-white/10 px-1">public/gallery/</code>) y aparecerán solas.
+        </p>
+      </div>
+      <p class="telemetry-mono text-xs text-gray-500">{entries.length} FOTOS LOCALES DETECTADAS</p>
+    </div>
+
+    {entries.length === 0 ? (
+      <div class="mt-6 grid gap-4 md:grid-cols-3">
+        {[1, 2, 3, 4, 5, 6].map((i) => (
+          <div class="flex min-h-48 flex-col justify-between rounded-2xl border border-dashed border-white/20 bg-gray-900/60 p-5">
+            <p class="telemetry-mono text-xs text-gray-500">SLOT FOTO-{i}</p>
+            <p class="mt-6 text-sm text-gray-400">
+              Espacio reservado para foto SAT {i}. Sube <span class="telemetry-mono text-gray-300">foto-{i}.jpg</span> a <span class="telemetry-mono text-gray-300">src/assets/gallery/</span>.
+            </p>
+            <p class="telemetry-mono mt-4 text-xs text-green-400">○ pendiente</p>
+          </div>
+        ))}
+      </div>
+    ) : (
+      <div class="mt-6 grid gap-4 sm:grid-cols-2 md:grid-cols-3">
+        {entries.map(([path, url]) => (
+          <figure class="overflow-hidden rounded-2xl border border-white/10 bg-gray-900/70">
+            <img src={url} alt={`Foto PAINANI-1 ${path.split("/").pop()}`} class="aspect-[4/3] w-full object-cover" loading="lazy" />
+            <figcaption class="telemetry-mono truncate px-3 py-2 text-xs text-gray-400">{path.split("/").pop()}</figcaption>
+          </figure>
+        ))}
+      </div>
+    )}
+  </div>
+</section>

@@ -1,0 +1,51 @@
+{
+  "name": "PAINANI-1",
+  "fullName": "PAINANI-I · Primer nanosatélite mexicano",
+  "tagline": "El mensajero veloz de México — revive su viaje completo.",
+  "status": "Misión finalizada · Archivo Voyage",
+  "description": "Nanosatélite experimental 3U CubeSat diseñado, construido y ensamblado por personal del Departamento de Electrónica y Telecomunicaciones del CICESE en 2018 bajo el estándar CubeSat. Patrocinado por la Secretaría de la Defensa Nacional (SEDENA), sirvió como plataforma de aprendizaje e investigación para la Universidad del Ejército y Fuerza Aérea Mexicana. Fue el primer nanosatélite desarrollado por una institución académica mexicana transferido a un usuario.",
+  "quickFacts": [
+    { "label": "Plataforma", "value": "3U CubeSat · 3.3 kg" },
+    { "label": "Lanzamiento", "value": "29 Jun 2019 · Electron KS" },
+    { "label": "Sitio", "value": "Mahia LC-1A, Nueva Zelanda" },
+    { "label": "Órbita", "value": "447 × 460 km · 45.01°" },
+    { "label": "IDs", "value": "2019-037A · NORAD 44365" },
+    { "label": "Operador", "value": "SEDENA / UDEFA" },
+    { "label": "Desarrollador", "value": "CICESE · Electrónica y Telecomunicaciones" },
+    { "label": "Carga útil", "value": "4 cámaras espectro visible" }
+  ],
+  "payload": [
+    "Módulo de captura de imágenes con 4 sensores en espectro visible",
+    "Operación de cámaras solo sobre territorio mexicano",
+    "Enlace de bajada en banda S con frequency hopping",
+    "Balizas cortas: temperaturas, voltajes y corrientes (PAT, SMPST, V3V3, V5V, C3V3, C5V)",
+    "Balizas largas: temperaturas de paneles y bancos, giróscopos, capacidad y voltaje de baterías, estado GPS"
+  ],
+  "purpose": "Plataforma de aprendizaje para experimentar en procesamiento digital de señales y software de estación terrena.",
+  "launch": {
+    "date": "2019-06-29T04:30:00Z",
+    "vehicle": "Electron KS · misión 'Make It Rain'",
+    "site": "Onenui Station LC-1A, Mahía, Nueva Zelanda",
+    "rideshare": "BlackSky Global 3, Prometheus 2.7 / 2.9, ACRUX-1, SpaceBEE 8 y 9",
+    "note": "Voló como carga comercial no revelada; fue identificada semanas después por la Agencia Espacial de Nueva Zelanda."
+  },
+  "archive": {
+    "shortBeacons": 16164,
+    "longBeacons": 1953,
+    "tleCount": 2807,
+    "coverage": "Ene 2020 – Ene 2023",
+    "note": "Esta página reutiliza el motor Painan Rewind: globo 3D propagado con satellite.js + TLEs históricos, gráficas de telemetría y control de línea de tiempo."
+  },
+  "milestones": [
+    { "date": "2018", "title": "Diseño y ensamble", "text": "CICESE diseña, construye y ensambla el Painani-I bajo estándar CubeSat." },
+    { "date": "29 Jun 2019", "title": "Lanzamiento", "text": "Despega en Electron KS desde Mahia, Nueva Zelanda, como rideshare." },
+    { "date": "2019 – 2020", "title": "Primer contacto y operaciones", "text": "Se establece operación y descarga de balizas cortas y largas + fotos sobre México." },
+    { "date": "2020 – 2023", "title": "El Voyage", "text": "16 164 balizas cortas y 1 953 largas archivadas. Recórrelas abajo en el globo y las gráficas." },
+    { "date": "Hoy", "title": "Misión finalizada", "text": "Painani-1 cierra operaciones. Esta página preserva su viaje con fotos SAT y telemetría." }
+  ],
+  "sources": [
+    { "label": "CICESE · Difusión 864", "url": "https://www.cicese.edu.mx/cicese3/difusion/getDatosDifusionId/864" },
+    { "label": "CICESE · Primer nanosatélite mexicano", "url": "https://www.cicese.edu.mx/50aniversario/2023/04/24/primer-nanosatelite-mexicano" },
+    { "label": "Gunter's Space Page · Painani 1", "url": "https://space.skyrocket.de/doc_sdat/painani-1.htm" }
+  ]
+}

@@ -1,39 +1,66 @@
 ---
 import Layout from "../layouts/Layout.astro";
 import World from "../components/world";
-import painanitles from "../Data/painanitles.json";
 import Timeline from "../components/timeline.jsx";
 import ShortPlots from "../components/ShortPlots.jsx";
 import LongPlots from "../components/LongPlots.jsx";
+import painanitles from "../data/painanitles.json";
+import Navbar from "../components/landing/Navbar.astro";
+import Hero from "../components/landing/Hero.astro";
+import Mission from "../components/landing/Mission.astro";
+import Gallery from "../components/landing/Gallery.astro";
+import Spacecraft from "../components/landing/Spacecraft.astro";
+import MilestonesFooter from "../components/landing/MilestonesFooter.astro";
 ---
 
-<Layout>
-  <div class="relative w-screen h-screen overflow-hidden">
-    
-    <div class="absolute inset-0 z-0">
-      <World tle={painanitles[0]} client:only="react" />
+<Layout title="PAINANI-1 · Mission Voyage">
+  <Navbar />
+  <Hero />
+  <Mission />
+
+  <section id="viaje" class="border-t border-white/10">
+    <div class="mx-auto max-w-6xl px-4 pb-2 pt-14">
+      <p class="telemetry-mono text-xs font-bold tracking-widest text-green-400">● EN VIVO DESDE EL ARCHIVO · PAINAN REWIND</p>
+      <h2 class="mt-1 text-2xl font-black text-blue-300 md:text-3xl">Revive el viaje</h2>
+      <p class="mt-2 max-w-3xl text-gray-400">
+        Mueve la línea de tiempo para propagar la órbita con TLEs históricos y ver la telemetría real
+        de balizas cortas y largas. El globo sigue al satélite; las gráficas reciclan el estilo oscuro del proyecto original.
+      </p>
     </div>
 
-    <div class="relative z-10 h-full w-full pointer-events-none">
-      
-      <div class="pointer-events-auto lg:w-2/5">
-        <ShortPlots client:only="react" />
+    <div class="relative mx-auto mt-6 max-w-6xl px-4">
+      <div class="overflow-hidden rounded-2xl border border-white/10 bg-black shadow-2xl">
+        <div class="relative h-[70vh] min-h-[480px] w-full">
+          <div class="absolute inset-0">
+            <World tle={painanitles[0]} client:only="react" />
+          </div>
+          <div class="pointer-events-none absolute left-3 top-3 rounded-full border border-white/15 bg-black/60 px-3 py-1 text-xs telemetry-mono text-green-300">
+            ● ÓRBITA PROPAGADA · satellite.js
+          </div>
+          <div class="pointer-events-auto absolute right-3 top-3 w-[300px] max-w-[80vw] rounded-2xl border border-white/10 bg-gray-900/85 p-2 backdrop-blur">
+            <p class="telemetry-mono px-2 pt-1 text-[11px] font-bold tracking-widest text-blue-300">BALIZAS CORTAS</p>
+            <ShortPlots client:only="react" />
+          </div>
+        </div>
       </div>
 
-      <div class="pointer-events-auto">
+      <div class="mt-4 rounded-2xl border border-white/10 bg-gray-900/70 p-3">
+        <p class="telemetry-mono px-2 pb-2 text-[11px] font-bold tracking-widest text-blue-300">BALIZAS LARGAS · GIRÓSCOPOS / BATERÍAS</p>
         <LongPlots client:only="react" />
       </div>
-
-      <div class="absolute bottom-0 w-full pointer-events-auto">
-        <Timeline client:only="react" />
-      </div>
-      
     </div>
-  </div>
+
+    <div class="h-56"></div>
+  </section>
+
+  <Gallery />
+  <Spacecraft />
+  <MilestonesFooter />
+
+  <Timeline client:only="react" />
 </Layout>
 
 <style>
-  /* Ensure the container takes full viewport */
   :root {
     overflow-x: hidden;
   }

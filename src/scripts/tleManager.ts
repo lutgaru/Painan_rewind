@@ -1,4 +1,4 @@
-import painanitles from '../Data/painanitles.json';
+import painanitles from '../data/painanitles.json';
 
 // Caching mechanism to improve performance
 let lastSelectedTle: { tle: any; targetTime: number } | null = null;
