@@ -95,7 +95,7 @@ const TimelineSlider = () => {
   }, [isPlaying, endTimeMs]);
 
   return (
-    <div className="p-4 bg-gray-900 text-white shadow-2xl w-full fixed bottom-0 left-0 z-50">
+    <div className="p-4 bg-gray-900 text-white shadow-2xl w-full rounded-2xl border border-white/10">
       <h1 className="text-xl font-bold mb-3 text-center text-blue-300">
         Timeline Control
       </h1>

@@ -32,9 +32,9 @@ function ShortPlots(props) {
 
     return (
         <div>
-            <main class=" p-4">
+            <main className=" p-4">
                 <AreaChart
-                    style={{ width: '100%', maxWidth: '500px', height: '100%', maxHeight: '20vh', aspectRatio: 1.618 }}
+                    style={{ width: '100%', maxWidth: '500px', height: '100%', maxHeight: '16vh', aspectRatio: 1.618 }}
                     responsive
                     data={listofvals.tempshorts}
                     margin={{
@@ -59,7 +59,7 @@ function ShortPlots(props) {
                     <Area type="monotone" dataKey="smpt" stroke="#82ca9d" />
                 </AreaChart>
                 <AreaChart
-                    style={{ width: '100%', maxWidth: '500px', height: '100%', maxHeight: '20vh', aspectRatio: 1.618 }}
+                    style={{ width: '100%', maxWidth: '500px', height: '100%', maxHeight: '16vh', aspectRatio: 1.618 }}
                     responsive
                     data={listofvals.voltshors}
                     margin={{
@@ -84,7 +84,7 @@ function ShortPlots(props) {
 
                 </AreaChart>
                 <AreaChart
-                    style={{ width: '100%', maxWidth: '500px', height: '100%', maxHeight: '20vh', aspectRatio: 1.618 }}
+                    style={{ width: '100%', maxWidth: '500px', height: '100%', maxHeight: '16vh', aspectRatio: 1.618 }}
                     responsive
                     data={listofvals.currentshors}
                     margin={{

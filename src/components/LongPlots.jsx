@@ -29,7 +29,7 @@ function LongPlots(props) {
 
 
     return (
-        <div class="flex  gap-4 justify-center  p-2">
+        <div className="flex flex-col gap-4 justify-center p-2 lg:flex-row">
             <LineChart
                 style={{ width: '100%', maxWidth: '500px', height: '100%', maxHeight: '20vh', aspectRatio: 1.618 }}
                 responsive

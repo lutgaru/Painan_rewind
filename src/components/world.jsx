@@ -43,12 +43,25 @@ function julianToDate(jd) {
   return new Date(Date.UTC(year, month - 1, dayInt, hours, minutes, seconds));
 }
 
+function isWebGLAvailable() {
+  try {
+    const canvas = document.createElement('canvas');
+    return !!((canvas.getContext && canvas.getContext('webgl2')) || canvas.getContext('webgl'));
+  } catch {
+    return false;
+  }
+}
+
 const World = (props) => {
+
+  const [webglOK] = useState(() => typeof document !== 'undefined' && isWebGLAvailable());
 
   const $timeDataStore = useStore(timeDataStore);
   const { date: storeDate } = $timeDataStore;
 
   const globeEl = useRef();
+  const containerRef = useRef();
+  const [frameSize, setFrameSize] = useState({ width: 800, height: 600 });
   const [satData, setSatData] = useState();
   const [orbitPaths, setOrbitPaths] = useState([]);
   const [globeRadius, setGlobeRadius] = useState();
@@ -135,6 +148,25 @@ const World = (props) => {
   }, [globeRadius]);
 
   useEffect(() => {
+    // Keep the canvas fitted to its frame (defaults are viewport-sized,
+    // which overflowed once the globe moved into the 70% column).
+    if (!containerRef.current) return;
+    const updateSize = () => {
+      const rect = containerRef.current.getBoundingClientRect();
+      setFrameSize((prev) => {
+        const width = Math.floor(rect.width);
+        const height = Math.floor(rect.height);
+        return prev.width === width && prev.height === height ? prev : { width, height };
+      });
+    };
+    updateSize();
+    const observer = new ResizeObserver(updateSize);
+    observer.observe(containerRef.current);
+    return () => observer.disconnect();
+  }, []);
+
+  useEffect(() => {
+    if (!globeEl.current) return;
     setGlobeRadius(globeEl.current.getGlobeRadius());
     globeEl.current.pointOfView({ altitude: 3.5 });
   }, []);
@@ -154,10 +186,27 @@ const World = (props) => {
 
 
 
+  if (!webglOK) {
+    return (
+      <div style={{ width: '100%', height: '100%', minHeight: '380px', display: 'flex', alignItems: 'center', justifyContent: 'center', background: '#050810', padding: '24px', textAlign: 'center' }}>
+        <div>
+          <p style={{ color: '#93c5fd', fontWeight: 'bold', marginBottom: '8px' }}>3D globe unavailable</p>
+          <p style={{ color: '#9ca3af', fontSize: '14px', maxWidth: '420px' }}>
+            This browser has WebGL disabled, so the Earth cannot render here.
+            Enable hardware acceleration in your browser settings and reload — the orbit data and telemetry below work without it.
+          </p>
+        </div>
+      </div>
+    );
+  }
+
   return (
+    <div ref={containerRef} style={{ width: '100%', height: '100%' }}>
     <Globe
 
       ref={globeEl}
+      width={frameSize.width}
+      height={frameSize.height}
       globeImageUrl={tierra.src}
       objectsData={objectsData}
       objectThreeObject={satObject}
@@ -175,6 +224,7 @@ const World = (props) => {
     //   arcDashGap={() => Math.random()}
     // arcDashAnimateTime={() => Math.random() * 4000 + 500}
     />
+    </div>
   );
 };
 
