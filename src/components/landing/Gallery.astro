@@ -1,20 +1,24 @@
 ---
-// Gallery scaffold: drop SAT photos into src/assets/gallery/* or public/gallery/*
-// Build-time glob picks up anything placed in src/assets/gallery.
-const localImages = import.meta.glob("../../assets/gallery/*.{jpg,jpeg,png,webp}", { eager: true, query: "?url", import: "default" }) as Record<string, string>;
-const entries = Object.entries(localImages);
+import { Image } from "astro:assets";
+import type { ImageMetadata } from "astro";
+
+// Optimized at build time (responsive sizes + WebP output).
+// New photos dropped into src/assets/gallery/ appear automatically.
+const galleryModules = import.meta.glob<{ default: ImageMetadata }>(
+  "../../assets/gallery/*.{jpg,jpeg,png,webp}",
+  { eager: true }
+);
+const entries = Object.entries(galleryModules)
+  .map(([path, mod]) => ({ file: path.split("/").pop() ?? path, image: mod.default }))
+  .sort((a, b) => a.file.localeCompare(b.file));
 ---
 <section id="fotos" class="border-t border-white/10 bg-[#070c16]">
   <div class="mx-auto max-w-6xl px-4 py-14">
     <div class="flex flex-wrap items-end justify-between gap-3">
       <div>
         <h2 class="text-2xl font-black text-blue-300">Fotos tomadas desde el SAT</h2>
-        <p class="mt-2 max-w-2xl text-gray-400">
-          Galería del módulo de 4 sensores en espectro visible. Si aún no ves fotos aquí,
-          coloca los archivos en <code class="telemetry-mono rounded bg-white/10 px-1">src/assets/gallery/</code> (o <code class="telemetry-mono rounded bg-white/10 px-1">public/gallery/</code>) y aparecerán solas.
-        </p>
       </div>
-      <p class="telemetry-mono text-xs text-gray-500">{entries.length} FOTOS LOCALES DETECTADAS</p>
+      <p class="telemetry-mono text-xs text-gray-500">{entries.length} FOTOS SAT DETECTADAS</p>
     </div>
 
     {entries.length === 0 ? (
@@ -31,10 +35,10 @@ const entries = Object.entries(localImages);
       </div>
     ) : (
       <div class="mt-6 grid gap-4 sm:grid-cols-2 md:grid-cols-3">
-        {entries.map(([path, url]) => (
+        {entries.map(({ file, image }) => (
           <figure class="overflow-hidden rounded-2xl border border-white/10 bg-gray-900/70">
-            <img src={url} alt={`Foto PAINANI-1 ${path.split("/").pop()}`} class="aspect-[4/3] w-full object-cover" loading="lazy" />
-            <figcaption class="telemetry-mono truncate px-3 py-2 text-xs text-gray-400">{path.split("/").pop()}</figcaption>
+            <Image src={image} alt={`Foto PAINANI-1 ${file}`} widths={[400, 800, 1200]} sizes="(max-width: 640px) 100vw, (max-width: 1024px) 50vw, 33vw" format="webp" class="aspect-[4/3] w-full object-cover" loading="lazy" />
+            <figcaption class="telemetry-mono truncate px-3 py-2 text-xs text-gray-400">{file}</figcaption>
           </figure>
         ))}
       </div>

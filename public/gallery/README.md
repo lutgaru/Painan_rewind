@@ -1,10 +1,12 @@
 # Carpeta para fotos SAT de PAINANI-1
 
-Coloca aquí las fotos tomadas desde el satélite (JPG/PNG/WEBP).
+Coloca las fotos tomadas desde el satélite (JPG/PNG/WEBP) en `src/assets/gallery/`.
 
-Hay dos rutas soportadas:
+`Gallery.astro` las detecta con un glob en tiempo de compilación y las optimiza
+con el componente `Image` de Astro (tamaños responsivos + salida WebP).
 
-1. `src/assets/gallery/` → se muestran automáticamente con build-time glob en `Gallery.astro` (recomendado).
-2. `public/gallery/` → se sirven como archivos estáticos en `/gallery/...` (úsalas si quieres referenciarlas manualmente).
+`public/gallery/` ya no alimenta la galería; se conserva solo para archivos
+estáticos que quieras referenciar manualmente en `/gallery/...`.
 
-Nombres sugeridos: `foto-01.jpg`, `foto-02.jpg`, ...
+El favicon vive en `public/painani1.png` (los navegadores lo piden como archivo
+estático); el logo del navbar usa la copia optimizada en `src/assets/painani1.png`.
