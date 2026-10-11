@@ -13,56 +13,79 @@ import Spacecraft from "../components/landing/Spacecraft.astro";
 import MilestonesFooter from "../components/landing/MilestonesFooter.astro";
 ---
 
-<Layout title="PAINANI-1 · Mission Voyage">
+<Layout title="PAINANI-1 · Mission">
   <Navbar />
-  <Hero />
-  <Mission />
+  <main>
+    <Hero />
+    <Mission />
 
-  <section id="viaje" class="border-t border-white/10">
-    <div class="mx-auto max-w-6xl px-4 pb-2 pt-14">
-      <p class="telemetry-mono text-xs font-bold tracking-widest text-green-400">● EN VIVO DESDE EL ARCHIVO · PAINAN REWIND</p>
-      <h2 class="mt-1 text-2xl font-black text-blue-300 md:text-3xl">Revive el viaje</h2>
-      <p class="mt-2 max-w-3xl text-gray-400">
-        Mueve la línea de tiempo para propagar la órbita con TLEs históricos y ver la telemetría real
-        de balizas cortas y largas. El globo sigue al satélite; las gráficas reciclan el estilo oscuro del proyecto original.
-      </p>
-    </div>
+    {/* Viaje / Rewind — grouped Apple cards */}
+    <section id="viaje" class="apple-gutter" style="padding-top: 32px; padding-bottom: 32px; scroll-margin-top: 72px">
+      <div class="reveal" style="margin-bottom: 16px">
+        <p class="type-eyebrow" style="color: var(--system-green)">● En vivo desde el archivo · Painan Rewind</p>
+        <h2 class="type-title1" style="margin-top: 4px">Revive el viaje.</h2>
+        <p class="type-callout" style="color: var(--secondary-label); margin-top: 8px; max-width: 680px">
+          Mueve la línea de tiempo para propagar la órbita con TLEs históricos y ver la telemetría real
+          de balizas cortas y largas. El globo sigue al satélite.
+        </p>
+      </div>
 
-    <div class="mx-auto mt-6 max-w-6xl px-4">
-      <Timeline client:only="react" />
+      <div class="reveal" style="margin-bottom: 16px">
+        <Timeline client:only="react" />
+      </div>
 
-      <div class="mt-4 grid gap-4 lg:grid-cols-10">
-        <div class="overflow-hidden rounded-2xl border border-white/10 bg-black shadow-2xl lg:col-span-7">
-          <div class="relative h-[55vh] min-h-[380px] w-full">
+      <div class="voyage-grid">
+        <div class="apple-card reveal overflow-hidden" style="padding: 0">
+          <div class="flex items-center justify-between flex-wrap" style="gap: 8px; padding: 16px 20px 12px">
+            <h3 class="type-headline" style="font-size: 15px">Órbita propagada</h3>
+            <span class="sf-mono type-caption1 inline-flex min-h-[28px] items-center gap-2 rounded-full px-3" style="background: color-mix(in srgb, var(--system-green) 12%, transparent); color: var(--system-green); font-weight: 600">
+              <span aria-hidden="true" style="width: 7px; height: 7px; border-radius: 50%; background: currentColor"></span>
+              satellite.js
+            </span>
+          </div>
+          <div class="relative w-full" style="height: 55vh; min-height: 380px; background: #000; border-top: 0.5px solid var(--separator)">
             <div class="absolute inset-0">
               <World tle={painanitles[0]} client:only="react" />
             </div>
-            <div class="pointer-events-none absolute left-3 top-3 rounded-full border border-white/15 bg-black/60 px-3 py-1 text-xs telemetry-mono text-green-300">
-              ● ÓRBITA PROPAGADA · satellite.js
-            </div>
+          </div>
+          <p class="sf-mono type-caption2" style="color: var(--tertiary-label); padding: 12px 20px 16px; letter-spacing: 0.04em">
+            ARRASTRA PARA EXPLORAR · EL GLOBO SIGUE AL SATÉLITE
+          </p>
+        </div>
+
+        <div class="apple-card reveal" style="padding: 20px">
+          <h3 class="sf-mono type-caption1" style="color: var(--system-blue); letter-spacing: 0.08em">BALIZAS CORTAS</h3>
+          <p class="type-footnote" style="color: var(--secondary-label); margin-top: 4px">Temperaturas · voltajes · corrientes</p>
+          <div style="margin-top: 8px; max-height: 56vh; overflow-y: auto">
+            <ShortPlots client:only="react" />
           </div>
         </div>
-
-        <div class="rounded-2xl border border-white/10 bg-gray-900/85 p-2 lg:col-span-3 lg:h-[55vh] lg:min-h-[380px] lg:overflow-y-auto">
-          <p class="telemetry-mono px-2 pt-1 text-[11px] font-bold tracking-widest text-blue-300">BALIZAS CORTAS</p>
-          <ShortPlots client:only="react" />
-        </div>
       </div>
 
-      <div class="mt-4 rounded-2xl border border-white/10 bg-gray-900/70 p-3">
-        <p class="telemetry-mono px-2 pb-2 text-[11px] font-bold tracking-widest text-blue-300">BALIZAS LARGAS · GIRÓSCOPOS / BATERÍAS</p>
+      <div class="apple-card reveal" style="padding: 20px; margin-top: 16px">
+        <div class="flex items-end justify-between flex-wrap" style="gap: 8px; margin-bottom: 8px">
+          <div>
+            <h3 class="sf-mono type-caption1" style="color: var(--system-blue); letter-spacing: 0.08em">BALIZAS LARGAS</h3>
+            <p class="type-footnote" style="color: var(--secondary-label); margin-top: 4px">Giróscopos · baterías · paneles</p>
+          </div>
+          <div class="apple-segmented" role="tablist" aria-label="Vista de gráficas">
+            <button role="tab" aria-selected="true" class="pressable">Giros</button>
+            <button role="tab" aria-selected="false" class="pressable">Energía</button>
+          </div>
+        </div>
         <LongPlots client:only="react" />
       </div>
-    </div>
-  </section>
+    </section>
 
-  <Gallery />
-  <Spacecraft />
-  <MilestonesFooter />
+    <Gallery />
+    <Spacecraft />
+    <MilestonesFooter />
+  </main>
 </Layout>
 
 <style>
-  :root {
-    overflow-x: hidden;
+  .voyage-grid { display: grid; gap: 16px; grid-template-columns: 1fr; }
+  @media (min-width: 1024px) {
+    .voyage-grid { grid-template-columns: 1.75fr 1fr; align-items: stretch; }
   }
 </style>

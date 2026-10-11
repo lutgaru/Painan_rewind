@@ -1,33 +1,50 @@
 ---
 import mission from "../../data/mission.json";
 ---
-<section id="hitos" class="border-t border-white/10">
-  <div class="mx-auto max-w-6xl px-4 py-14">
-    <h2 class="text-2xl font-black text-blue-300">Hitos del Voyage</h2>
-    <ol class="mt-6 space-y-4">
-      {mission.milestones.map((m) => (
-        <li class="flex gap-4 rounded-2xl border border-white/10 bg-gray-900/60 p-4">
-          <span class="telemetry-mono h-fit shrink-0 rounded-full bg-blue-600/20 px-3 py-1 text-xs font-bold text-blue-300">{m.date}</span>
-          <div>
-            <h3 class="font-bold">{m.title}</h3>
-            <p class="text-sm text-gray-400">{m.text}</p>
-          </div>
+<section id="hitos" class="apple-gutter" style="padding-top: 32px; padding-bottom: 24px; scroll-margin-top: 72px">
+  <div class="reveal" style="margin-bottom: 16px">
+    <p class="type-eyebrow" style="color: var(--system-blue)">Trayectoria</p>
+    <h2 class="type-title1" style="margin-top: 4px">Hitos del viaje.</h2>
+  </div>
+
+  <ol style="position: relative; display: grid; gap: 0">
+    {mission.milestones.map((m, i) => (
+      <li class="reveal" style="display: grid; grid-template-columns: 32px 1fr; gap: 16px; padding-bottom: 8px">
+        {/* Timeline rail */}
+        <div class="flex flex-col items-center" aria-hidden="true">
+          <span style="width: 12px; height: 12px; margin-top: 6px; border-radius: 50%; background: var(--system-blue); box-shadow: 0 0 0 4px color-mix(in srgb, var(--system-blue) 18%, transparent); flex-shrink: 0"></span>
+          {i < mission.milestones.length - 1 && (
+            <span style="width: 2px; flex: 1; min-height: 32px; margin-top: 8px; border-radius: 2px; background: var(--separator)"></span>
+          )}
+        </div>
+        <div class="apple-card apple-card-interactive" style="padding: 16px 20px; margin-bottom: 16px">
+          <span class="sf-mono type-caption1 inline-flex min-h-[28px] items-center rounded-full px-3" style="background: color-mix(in srgb, var(--system-blue) 12%, transparent); color: var(--system-blue); font-weight: 600">{m.date}</span>
+          <h3 class="type-headline" style="margin-top: 8px">{m.title}</h3>
+          <p class="type-callout" style="color: var(--secondary-label); margin-top: 4px">{m.text}</p>
+        </div>
+      </li>
+    ))}
+  </ol>
+
+  <div class="apple-card reveal" style="padding: 20px 24px; margin-top: 8px">
+    <h3 class="sf-mono type-caption1" style="color: var(--secondary-label); letter-spacing: 0.08em">FUENTES</h3>
+    <ul class="flex flex-wrap" style="gap: 8px 24px; margin-top: 12px">
+      {mission.sources.map((s) => (
+        <li>
+          <a href={s.url} target="_blank" rel="noreferrer" class="apple-btn-plain type-callout" style="padding-inline: 0">
+            {s.label} <span aria-hidden="true">↗</span>
+          </a>
         </li>
       ))}
-    </ol>
-    <div class="mt-8 rounded-2xl border border-white/10 bg-gray-900/60 p-5">
-      <h3 class="telemetry-mono text-xs font-bold tracking-widest text-gray-400">FUENTES</h3>
-      <ul class="mt-2 flex flex-wrap gap-x-6 gap-y-2 text-sm">
-        {mission.sources.map((s) => (
-          <li><a href={s.url} target="_blank" rel="noreferrer" class="text-blue-300 underline hover:text-blue-200">{s.label} ↗</a></li>
-        ))}
-      </ul>
-    </div>
+    </ul>
   </div>
 </section>
-<footer class="border-t border-white/10 bg-[#04060c]">
-  <div class="telemetry-mono mx-auto flex max-w-6xl flex-wrap items-center justify-between gap-2 px-4 py-6 text-xs text-gray-500">
-    <span>PAINANI-1 · Mission Voyage — fundación construida sobre Painan Rewind (Astro + React + satellite.js)</span>
-    <span>CICESE · SEDENA · UDEFA — página de archivo, misión finalizada</span>
+
+<footer class="hairline-t" style="margin-top: 24px; padding-bottom: calc(24px + env(safe-area-inset-bottom))">
+  <div class="apple-gutter flex flex-wrap items-center justify-between" style="gap: 8px; padding-top: 20px; padding-bottom: 8px">
+    <p class="sf-mono type-caption1" style="color: var(--tertiary-label)">PAINANI-1 · Mission — Astro + React + satellite.js</p>
+    <p class="sf-mono type-caption1" style="color: var(--tertiary-label)">CICESE · SEDENA · UDEFA — archivo, misión finalizada</p>
   </div>
+  {/* Spacer so footer content clears the mobile tab bar */}
+  <div class="md:hidden" aria-hidden="true" style="height: 56px"></div>
 </footer>

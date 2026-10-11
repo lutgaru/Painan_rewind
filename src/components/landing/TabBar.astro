@@ -1,0 +1,35 @@
+---
+/* Apple HIG Bottom Tab Bar — mobile primary navigation. No burger menus.
+   5 destinations, each ≥44pt, spring active state, safe-area aware. */
+const tabs = [
+  { href: "#mision", label: "Misión", icon: "orbit" },
+  { href: "#viaje", label: "Viaje", icon: "play" },
+  { href: "#fotos", label: "Fotos", icon: "photos" },
+  { href: "#nave", label: "Nave", icon: "cube" },
+  { href: "#hitos", label: "Hitos", icon: "flag" },
+];
+---
+<nav class="material-tab hairline-t fixed inset-x-0 bottom-0 z-50 md:hidden" aria-label="Navegación principal" style="padding-bottom: env(safe-area-inset-bottom)">
+  <div class="grid grid-cols-5 px-2 pt-1">
+    {tabs.map((t) => (
+      <a href={t.href} data-spy class="tab-item" aria-label={t.label}>
+        {t.icon === "orbit" && (
+          <svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8"><circle cx="12" cy="12" r="3.2" fill="currentColor" stroke="none" opacity="0.9"/><ellipse cx="12" cy="12" rx="10" ry="4.2" transform="rotate(-20 12 12)"/></svg>
+        )}
+        {t.icon === "play" && (
+          <svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8"><circle cx="12" cy="12" r="9"/><path d="M10 8.5v7l6-3.5z" fill="currentColor" stroke="none"/></svg>
+        )}
+        {t.icon === "photos" && (
+          <svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8"><rect x="3" y="4" width="18" height="16" rx="3"/><circle cx="9" cy="10" r="1.6"/><path d="M4.5 18l5-5 3.5 3.5 2.5-2.5 4 4"/></svg>
+        )}
+        {t.icon === "cube" && (
+          <svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8"><path d="M12 2.5l8.5 4.75v9.5L12 21.5l-8.5-4.75v-9.5z"/><path d="M12 12L3.7 7.3M12 12l8.3-4.7M12 12v9.2"/></svg>
+        )}
+        {t.icon === "flag" && (
+          <svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8"><path d="M5 21V4"/><path d="M5 4.5h12.5l-2.5 4 2.5 4H5"/></svg>
+        )}
+        <span>{t.label}</span>
+      </a>
+    ))}
+  </div>
+</nav>

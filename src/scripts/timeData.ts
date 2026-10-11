@@ -9,4 +9,4 @@ export const timeDataStore = atom({
     range: [initialStartTime, initialEndTime] 
 });
 
-export { initialStartTime, initialEndTime};
+export { initialStartTime, initialEndTime, initialCurrentTime };

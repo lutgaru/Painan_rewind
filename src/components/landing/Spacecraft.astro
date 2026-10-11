@@ -1,34 +1,56 @@
 ---
 import mission from "../../data/mission.json";
+
+const subsystems = [
+  { name: "OBC", desc: "Computadora de a bordo" },
+  { name: "EPS", desc: "Paneles + baterías" },
+  { name: "COMMS", desc: "Banda S · FH" },
+  { name: "ADCS", desc: "Giróscopos + sensores" },
+  { name: "Cámaras ×4", desc: "Espectro visible" },
+  { name: "GPS", desc: "Fix / no-fix" },
+];
 ---
-<section id="nave" class="border-t border-white/10">
-  <div class="mx-auto max-w-6xl px-4 py-14">
-    <h2 class="text-2xl font-black text-blue-300">La nave · 3U CubeSat</h2>
-    <p class="mt-2 max-w-3xl text-gray-400">
-      Plataforma 3U de 3.3 kg en órbita baja (447 × 460 km, 45.01°). Carga útil de observación terrestre de baja resolución,
-      pensada como experimento tecnológico operado sobre México.
+<section id="nave" class="apple-gutter" style="padding-top: 32px; padding-bottom: 32px; scroll-margin-top: 72px">
+  <div class="reveal" style="margin-bottom: 16px">
+    <p class="type-eyebrow" style="color: var(--system-blue)">Spacecraft</p>
+    <h2 class="type-title1" style="margin-top: 4px">3U CubeSat · 3.3 kg.</h2>
+    <p class="type-callout" style="color: var(--secondary-label); margin-top: 8px; max-width: 640px">
+      Órbita baja de 447 × 460 km a 45.01°. Observación terrestre de baja resolución,
+      operada como experimento tecnológico sobre México.
     </p>
-    <div class="mt-6 grid gap-4 md:grid-cols-2">
-      <div class="rounded-2xl border border-white/10 bg-gray-900/70 p-5">
-        <h3 class="telemetry-mono text-xs font-bold tracking-widest text-green-400">CARGA ÚTIL E INSTRUMENTOS</h3>
-        <ul class="mt-3 list-disc space-y-2 pl-5 text-sm text-gray-300">
-          {mission.payload.map((item) => <li>{item}</li>)}
-        </ul>
-      </div>
-      <div class="rounded-2xl border border-white/10 bg-gray-900/70 p-5">
-        <h3 class="telemetry-mono text-xs font-bold tracking-widest text-blue-300">SUBSISTEMAS (RESUMEN)</h3>
-        <ul class="mt-3 grid grid-cols-2 gap-2 text-sm">
-          <li class="rounded-lg bg-white/5 p-3"><strong>OBC</strong><br /><span class="text-gray-400">Computadora de a bordo</span></li>
-          <li class="rounded-lg bg-white/5 p-3"><strong>EPS</strong><br /><span class="text-gray-400">Paneles + bancos de batería</span></li>
-          <li class="rounded-lg bg-white/5 p-3"><strong>COMMS</strong><br /><span class="text-gray-400">Banda S · FH</span></li>
-          <li class="rounded-lg bg-white/5 p-3"><strong>ADCS</strong><br /><span class="text-gray-400">Giróscopos + sensores</span></li>
-          <li class="rounded-lg bg-white/5 p-3"><strong>CÁMARAS ×4</strong><br /><span class="text-gray-400">Espectro visible</span></li>
-          <li class="rounded-lg bg-white/5 p-3"><strong>GPS</strong><br /><span class="text-gray-400">Fix / no-fix en baliza larga</span></li>
-        </ul>
-        <p class="mt-3 text-xs text-gray-500">
-          Detalle de subsistemas: CICESE “Subsystems of Painani I” (ver Fuentes).
-        </p>
-      </div>
+  </div>
+
+  <div class="spacecraft-grid">
+    <div class="apple-card reveal" style="padding: 24px">
+      <h3 class="sf-mono type-caption1" style="color: var(--system-green); letter-spacing: 0.08em">CARGA ÚTIL</h3>
+      <ul style="margin-top: 8px">
+        {mission.payload.map((item) => (
+          <li class="flex" style="gap: 12px; padding: 12px 0; border-bottom: 0.5px solid var(--separator)">
+            <span aria-hidden="true" style="width: 8px; height: 8px; margin-top: 7px; border-radius: 50%; flex-shrink: 0; background: var(--system-blue)"></span>
+            <span class="type-callout">{item}</span>
+          </li>
+        ))}
+      </ul>
+    </div>
+
+    <div class="apple-card reveal" style="padding: 24px; align-self: start">
+      <h3 class="sf-mono type-caption1" style="color: var(--system-blue); letter-spacing: 0.08em">SUBSISTEMAS</h3>
+      <ul class="grid grid-cols-2" style="gap: 8px; margin-top: 16px">
+        {subsystems.map((s) => (
+          <li class="pressable" style="border-radius: var(--radius-m); background: var(--secondary-grouped-card); padding: 16px">
+            <p class="type-headline" style="font-size: 15px">{s.name}</p>
+            <p class="type-footnote" style="color: var(--secondary-label); margin-top: 2px">{s.desc}</p>
+          </li>
+        ))}
+      </ul>
+      <p class="type-footnote" style="margin-top: 16px; color: var(--tertiary-label)">
+        Detalle de subsistemas: CICESE “Subsystems of Painani I” (ver Fuentes).
+      </p>
     </div>
   </div>
 </section>
+
+<style>
+  .spacecraft-grid { display: grid; gap: 16px; grid-template-columns: 1fr; }
+  @media (min-width: 900px) { .spacecraft-grid { grid-template-columns: 1fr 1fr; gap: 24px; } }
+</style>

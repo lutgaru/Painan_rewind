@@ -1,33 +1,99 @@
 ---
 import "../styles/global.css";
+import TabBar from "../components/landing/TabBar.astro";
 interface Props {
   title?: string;
   description?: string;
 }
-const { title = "PAINANI-1 · Mission Voyage", description = "Página de misión del primer nanosatélite mexicano: revive el viaje completo de PAINANI-1 con globo 3D, telemetría y fotos SAT." } = Astro.props;
+const { title = "PAINANI-1 · Mission", description = "El mensajero veloz de México — archivo vivo de la misión PAINANI-1 con globo 3D, telemetría y fotos SAT." } = Astro.props;
 ---
 <!doctype html>
-<html lang="es">
+<html lang="es" data-theme="dark">
   <head>
     <meta charset="UTF-8" />
-    <meta name="viewport" content="width=device-width" />
+    <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover" />
+    <meta name="theme-color" content="#000000" media="(prefers-color-scheme: dark)" />
+    <meta name="theme-color" content="#f2f2f7" media="(prefers-color-scheme: light)" />
     <link rel="icon" type="image/png" href="/painani1.png" />
     <link rel="apple-touch-icon" href="/painani1.png" />
     <meta name="generator" content={Astro.generator} />
     <meta name="description" content={description} />
     <title>{title}</title>
+    <script is:inline>
+      // Theme init — no FOUC. Default dark (space), respect saved choice.
+      try {
+        const saved = localStorage.getItem("painani-theme");
+        const root = document.documentElement;
+        if (saved === "light" || saved === "dark") {
+          root.setAttribute("data-theme", saved);
+        } else if (window.matchMedia("(prefers-color-scheme: light)").matches) {
+          root.setAttribute("data-theme", "light");
+        } else {
+          root.setAttribute("data-theme", "dark");
+        }
+      } catch {}
+    </script>
   </head>
-  <body class="bg-[#050810] text-white antialiased">
+  <body>
     <slot />
+    <TabBar />
+    <script is:inline>
+      // Large Title → Inline collapse + scrollspy + reveal (spring CSS, interruptible)
+      const nav = () => document.getElementById("apple-nav");
+      const onScroll = () => {
+        const y = window.scrollY;
+        const n = nav();
+        if (n) n.classList.toggle("is-scrolled", y > 24);
+        document.body.classList.toggle("nav-collapsed", y > 120);
+        // Scrollspy for tab bar + desktop nav
+        const sections = ["mision", "viaje", "fotos", "nave", "hitos"];
+        let current = "";
+        for (const id of sections) {
+          const el = document.getElementById(id);
+          if (el && el.getBoundingClientRect().top < window.innerHeight * 0.4) current = id;
+        }
+        document.querySelectorAll("[data-spy]").forEach((a) => {
+          const match = a.getAttribute("href") === "#" + current;
+          if (a.classList.contains("tab-item")) {
+            if (match) a.setAttribute("aria-current", "page");
+            else a.removeAttribute("aria-current");
+          } else {
+            a.toggleAttribute("data-active", match);
+          }
+        });
+      };
+      let ticking = false;
+      window.addEventListener("scroll", () => {
+        if (!ticking) {
+          requestAnimationFrame(() => { onScroll(); ticking = false; });
+          ticking = true;
+        }
+      }, { passive: true });
+      onScroll();
+
+      // Reveal on scroll
+      const io = new IntersectionObserver((entries) => {
+        for (const e of entries) if (e.isIntersecting) { e.target.classList.add("is-visible"); io.unobserve(e.target); }
+      }, { threshold: 0.12, rootMargin: "0px 0px -8px 0px" });
+      const watch = () => document.querySelectorAll(".reveal:not(.is-visible)").forEach((el) => io.observe(el));
+      watch();
+      new MutationObserver(watch).observe(document.body, { childList: true, subtree: true });
+
+      // Theme toggle
+      document.addEventListener("click", (e) => {
+        const btn = e.target.closest("[data-theme-toggle]");
+        if (!btn) return;
+        const root = document.documentElement;
+        const next = root.getAttribute("data-theme") === "dark" ? "light" : "dark";
+        root.setAttribute("data-theme", next);
+        try { localStorage.setItem("painani-theme", next); } catch {}
+        btn.setAttribute("aria-pressed", String(next === "dark"));
+      });
+    </script>
+    <style>
+      body { padding-bottom: calc(76px + env(safe-area-inset-bottom)); }
+      @media (min-width: 768px) { body { padding-bottom: 0; } }
+      [data-spy][data-active] { color: var(--system-blue) !important; }
+    </style>
   </body>
 </html>
-
-<style>
-  html,
-  body {
-    margin: 0;
-    width: 100%;
-    min-height: 100%;
-    background: #050810;
-  }
-</style>

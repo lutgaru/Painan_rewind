@@ -1,109 +1,97 @@
 import { useEffect, useState } from 'react';
-import { LineChart, Line, XAxis, YAxis, CartesianGrid, Tooltip, Legend, ResponsiveContainer, AreaChart, Area, } from 'recharts';
+import { LineChart, Line, XAxis, YAxis, CartesianGrid, Tooltip, Legend, ResponsiveContainer } from 'recharts';
 import moment from 'moment';
 import { getdatagraphsLong } from '../scripts/downloaders.ts'
 import { useStore } from '@nanostores/react';
 import { timeDataStore } from '../scripts/timeData.ts';
 
+const tick = { fill: 'var(--tertiary-label)', fontSize: 11, fontFamily: 'ui-monospace, SFMono-Regular, Menlo, monospace' };
+const tooltipStyle = {
+  backgroundColor: 'var(--grouped-card)',
+  border: '0.5px solid var(--separator)',
+  borderRadius: 12,
+  color: 'var(--label)',
+  fontSize: 12,
+  boxShadow: 'var(--shadow-2)',
+};
+
+function ChartCard({ title, subtitle, children }) {
+  return (
+    <section
+      className="apple-card"
+      style={{ padding: 16, borderRadius: 'var(--radius-m)', background: 'var(--secondary-grouped-card)', minWidth: 0, flex: '1 1 280px' }}
+      aria-label={title}
+    >
+      <h4 className="sf-mono type-caption1" style={{ letterSpacing: '0.06em', color: 'var(--secondary-label)' }}>{title}</h4>
+      {subtitle && <p className="type-footnote" style={{ color: 'var(--tertiary-label)', marginTop: 2 }}>{subtitle}</p>}
+      <div style={{ marginTop: 8 }}>{children}</div>
+    </section>
+  );
+}
+
 function LongPlots(props) {
+  const $timeDataStore = useStore(timeDataStore);
+  const { range: storeRange } = $timeDataStore;
+  const [listofvals, setlistofvals] = useState({})
 
-    const $timeDataStore = useStore(timeDataStore);
-    const { range: storeRange } = $timeDataStore;
-    const [listofvals, setlistofvals] = useState({})
-    //console.log(decoder.decoder_short_beacon('8A82A4A89040E0A6A082868A406103F0000003E6080850E903510006050C'))
+  useEffect(() => {
+    const fetchData = async () => {
+      try {
+        const data = await getdatagraphsLong(storeRange[0], storeRange[1]);
+        setlistofvals(data);
+      } catch (error) { console.error('Error fetching data:', error); }
+    };
+    fetchData();
+  }, [storeRange]);
 
-    useEffect(() => {
-        const fetchData = async () => {
-            try {
-                const data = await getdatagraphsLong(storeRange[0], storeRange[1]);
-                setlistofvals(data);
-                console.log('List of values:', data);
-            } catch (error) {
-                console.error('Error fetching data:', error);
-            }
-        };
+  const fmt = (t) => moment(t).format('DD/MM/YY HH:mm');
 
-        // Call the async function
-        fetchData();
-    }, [storeRange]);
+  return (
+    <div className="flex flex-col lg:flex-row" style={{ gap: 12 }}>
+      <ChartCard title="GIRÓSCOPOS · X / Y / Z" subtitle="°/s · baliza larga">
+        <ResponsiveContainer width="100%" height={220}>
+          <LineChart data={listofvals.gyrolarge} margin={{ top: 5, right: 4, left: -12, bottom: 5 }}>
+            <CartesianGrid strokeDasharray="3 3" stroke="var(--separator)" vertical={false} />
+            <XAxis dataKey="name" stroke="var(--separator)" tick={tick} tickFormatter={fmt} domain={['auto', 'auto']} scale="time" type="number" tickCount={4} />
+            <YAxis stroke="var(--separator)" tick={tick} width={48} domain={[-300, 300]} />
+            <Tooltip contentStyle={tooltipStyle} labelFormatter={fmt} />
+            <Legend wrapperStyle={{ fontSize: 12 }} />
+            <Line type="monotone" dataKey="gyrox" stroke="#ff9f0a" strokeWidth={2} dot={false} />
+            <Line type="monotone" dataKey="gyroy" stroke="var(--system-green)" strokeWidth={2} dot={false} />
+            <Line type="monotone" dataKey="gyroz" stroke="var(--system-blue)" strokeWidth={2} dot={false} />
+          </LineChart>
+        </ResponsiveContainer>
+      </ChartCard>
 
+      <ChartCard title="BATERÍAS · CAPACIDAD" subtitle="mAh · bancos 1 / 2">
+        <ResponsiveContainer width="100%" height={220}>
+          <LineChart data={listofvals.chargecapacity} margin={{ top: 5, right: 4, left: -12, bottom: 5 }}>
+            <CartesianGrid strokeDasharray="3 3" stroke="var(--separator)" vertical={false} />
+            <XAxis dataKey="name" stroke="var(--separator)" tick={tick} tickFormatter={fmt} domain={['auto', 'auto']} scale="time" type="number" tickCount={4} />
+            <YAxis stroke="var(--separator)" tick={tick} width={48} />
+            <Tooltip contentStyle={tooltipStyle} labelFormatter={fmt} />
+            <Legend wrapperStyle={{ fontSize: 12 }} />
+            <Line type="monotone" dataKey="BankChar1" stroke="var(--system-blue)" strokeWidth={2} dot={false} />
+            <Line type="monotone" dataKey="BankChar2" stroke="var(--system-green)" strokeWidth={2} dot={false} />
+          </LineChart>
+        </ResponsiveContainer>
+      </ChartCard>
 
-    return (
-        <div className="flex flex-col gap-4 justify-center p-2 lg:flex-row">
-            <LineChart
-                style={{ width: '100%', maxWidth: '500px', height: '100%', maxHeight: '20vh', aspectRatio: 1.618 }}
-                responsive
-                data={listofvals.gyrolarge}
-                margin={{
-                    top: 5,
-                    right: 0,
-                    left: 0,
-                    bottom: 5,
-                }}
-            >
-                <CartesianGrid strokeDasharray="1 0" stroke="#ffffff2f" fill='#7e7e7e20' vertical={true} horizontal={true} />
-                <XAxis dataKey="name" stroke="#fff"
-                    tickFormatter={(timestamp) => moment(timestamp).format('DD/MM/YY HH:mm')}
-                    domain={['auto', 'auto']}
-                    scale="time"
-                    type='number' />
-                <YAxis stroke="#fff" domain={[-300, 300]} />
-                <Tooltip />
-                <Legend />
-                <Line type="monotone" dataKey="gyrox" stroke="#d68165" strokeWidth={2} dot={false} />
-                <Line type="monotone" dataKey="gyroy" stroke="#65D681" strokeWidth={2} dot={false} />
-                <Line type="monotone" dataKey="gyroz" stroke="#8165D6" strokeWidth={2} dot={false} />
-            </LineChart>
-            <LineChart
-                style={{ width: '100%', maxWidth: '500px', height: '100%', maxHeight: '20vh', aspectRatio: 1.618 }}
-                responsive
-                data={listofvals.chargecapacity}
-                margin={{
-                    top: 5,
-                    right: 0,
-                    left: 0,
-                    bottom: 5,
-                }}
-            >
-                <CartesianGrid strokeDasharray="1 0" stroke="#ffffff2f" fill='#7e7e7e20' vertical={true} horizontal={true} />
-                <XAxis dataKey="name" stroke="#fff"
-                    tickFormatter={(timestamp) => moment(timestamp).format('DD/MM/YY HH:mm')}
-                    domain={['auto', 'auto']}
-                    scale="time"
-                    type='number' />
-                <YAxis stroke="#fff" />
-                <Tooltip />
-                <Legend />
-                <Line type="monotone" dataKey="BankChar1" stroke="#8884d8" strokeWidth={2} dot={false} />
-                <Line type="monotone" dataKey="BankChar2" stroke="#82ca9d" strokeWidth={2} dot={false} />
-            </LineChart>
-            <LineChart
-                style={{ width: '100%', maxWidth: '500px', height: '100%', maxHeight: '20vh', aspectRatio: 1.618 }}
-                responsive
-                data={listofvals.batvolts}
-                margin={{
-                    top: 5,
-                    right: 0,
-                    left: 0,
-                    bottom: 5,
-                }}
-            >
-                <CartesianGrid strokeDasharray="1 0" stroke="#ffffff2f" fill='#7e7e7e20' vertical={true} horizontal={true} />
-                <XAxis dataKey="name" stroke="#fff"
-                    tickFormatter={(timestamp) => moment(timestamp).format('DD/MM/YY HH:mm')}
-                    domain={['auto', 'auto']}
-                    scale="time"
-                    type='number' />
-                <YAxis stroke="#fff" />
-                <Tooltip />
-                <Legend />
-                <Line type="monotone" dataKey="BankVolt1" stroke="#8884d8" strokeWidth={2} dot={false} />
-                <Line type="monotone" dataKey="BankVolt2" stroke="#82ca9d" strokeWidth={2} dot={false} />
-            </LineChart>
-        </div>
-
-
-    );
+      <ChartCard title="BATERÍAS · VOLTAJE" subtitle="V · bancos 1 / 2">
+        <ResponsiveContainer width="100%" height={220}>
+          <LineChart data={listofvals.batvolts} margin={{ top: 5, right: 4, left: -12, bottom: 5 }}>
+            <CartesianGrid strokeDasharray="3 3" stroke="var(--separator)" vertical={false} />
+            <XAxis dataKey="name" stroke="var(--separator)" tick={tick} tickFormatter={fmt} domain={['auto', 'auto']} scale="time" type="number" tickCount={4} />
+            <YAxis stroke="var(--separator)" tick={tick} width={48} />
+            <Tooltip contentStyle={tooltipStyle} labelFormatter={fmt} />
+            <Legend wrapperStyle={{ fontSize: 12 }} />
+            <Line type="monotone" dataKey="BankVolt1" stroke="var(--system-blue)" strokeWidth={2} dot={false} />
+            <Line type="monotone" dataKey="BankVolt2" stroke="var(--system-green)" strokeWidth={2} dot={false} />
+          </LineChart>
+        </ResponsiveContainer>
+      </ChartCard>
+    </div>
+  );
 }
 
 export default LongPlots

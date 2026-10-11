@@ -2,8 +2,6 @@
 import { Image } from "astro:assets";
 import type { ImageMetadata } from "astro";
 
-// Optimized at build time (responsive sizes + WebP output).
-// New photos dropped into src/assets/gallery/ appear automatically.
 const galleryModules = import.meta.glob<{ default: ImageMetadata }>(
   "../../assets/gallery/*.{jpg,jpeg,png,webp}",
   { eager: true }
@@ -12,36 +10,52 @@ const entries = Object.entries(galleryModules)
   .map(([path, mod]) => ({ file: path.split("/").pop() ?? path, image: mod.default }))
   .sort((a, b) => a.file.localeCompare(b.file));
 ---
-<section id="fotos" class="border-t border-white/10 bg-[#070c16]">
-  <div class="mx-auto max-w-6xl px-4 py-14">
-    <div class="flex flex-wrap items-end justify-between gap-3">
-      <div>
-        <h2 class="text-2xl font-black text-blue-300">Fotos tomadas desde el SAT</h2>
-      </div>
-      <p class="telemetry-mono text-xs text-gray-500">{entries.length} FOTOS SAT DETECTADAS</p>
+<section id="fotos" class="apple-gutter" style="padding-top: 32px; padding-bottom: 32px; scroll-margin-top: 72px">
+  <div class="reveal flex items-end justify-between flex-wrap" style="gap: 8px; margin-bottom: 16px">
+    <div>
+      <p class="type-eyebrow" style="color: var(--system-blue)">Galería</p>
+      <h2 class="type-title1" style="margin-top: 4px">Visto desde arriba.</h2>
+      <p class="type-callout" style="color: var(--secondary-label); margin-top: 8px; max-width: 560px">
+        Fotografías capturadas por las cámaras de PAINANI-1 en espectro visible, solo sobre territorio mexicano.
+      </p>
     </div>
-
-    {entries.length === 0 ? (
-      <div class="mt-6 grid gap-4 md:grid-cols-3">
-        {[1, 2, 3, 4, 5, 6].map((i) => (
-          <div class="flex min-h-48 flex-col justify-between rounded-2xl border border-dashed border-white/20 bg-gray-900/60 p-5">
-            <p class="telemetry-mono text-xs text-gray-500">SLOT FOTO-{i}</p>
-            <p class="mt-6 text-sm text-gray-400">
-              Espacio reservado para foto SAT {i}. Sube <span class="telemetry-mono text-gray-300">foto-{i}.jpg</span> a <span class="telemetry-mono text-gray-300">src/assets/gallery/</span>.
-            </p>
-            <p class="telemetry-mono mt-4 text-xs text-green-400">○ pendiente</p>
-          </div>
-        ))}
-      </div>
-    ) : (
-      <div class="mt-6 grid gap-4 sm:grid-cols-2 md:grid-cols-3">
-        {entries.map(({ file, image }) => (
-          <figure class="overflow-hidden rounded-2xl border border-white/10 bg-gray-900/70">
-            <Image src={image} alt={`Foto PAINANI-1 ${file}`} widths={[400, 800, 1200]} sizes="(max-width: 640px) 100vw, (max-width: 1024px) 50vw, 33vw" format="webp" class="aspect-[4/3] w-full object-cover" loading="lazy" />
-            <figcaption class="telemetry-mono truncate px-3 py-2 text-xs text-gray-400">{file}</figcaption>
-          </figure>
-        ))}
-      </div>
-    )}
+    <p class="sf-mono type-caption1" style="color: var(--tertiary-label); letter-spacing: 0.06em">{entries.length} FOTOS SAT</p>
   </div>
+
+  {entries.length === 0 ? (
+    <div class="grid sm:grid-cols-2 lg:grid-cols-3" style="gap: 16px">
+      {[1, 2, 3, 4, 5, 6].map((i) => (
+        <div class="apple-card reveal" style="padding: 24px; min-height: 200px; display: flex; flex-direction: column; justify-content: space-between; border-style: dashed">
+          <p class="sf-mono type-caption1" style="color: var(--tertiary-label)">FOTO-{i}</p>
+          <p class="type-subhead" style="color: var(--secondary-label); margin-top: 24px">
+            Espacio reservado. Sube <span class="sf-mono">foto-{i}.jpg</span> a <span class="sf-mono">src/assets/gallery/</span>.
+          </p>
+          <p class="sf-mono type-caption1" style="color: var(--system-green); margin-top: 16px">○ pendiente</p>
+        </div>
+      ))}
+    </div>
+  ) : (
+    <div class="grid sm:grid-cols-2 lg:grid-cols-3" style="gap: 16px">
+      {entries.map(({ file, image }, i) => (
+        <figure class="apple-card apple-card-interactive sat-photo reveal overflow-hidden" style="padding: 0; border-radius: var(--radius-l)">
+          <div class="overflow-hidden" style="border-radius: var(--radius-l) var(--radius-l) 0 0">
+            <Image
+              src={image}
+              alt={`Foto PAINANI-1 ${file}`}
+              widths={[400, 800, 1200]}
+              sizes="(max-width: 640px) 100vw, (max-width: 1024px) 50vw, 33vw"
+              format="webp"
+              class="w-full object-cover"
+              style="aspect-ratio: 4/3; display: block"
+              loading="lazy"
+            />
+          </div>
+          <figcaption class="flex items-center justify-between" style="padding: 12px 16px">
+            <span class="sf-mono type-caption1 truncate" style="color: var(--secondary-label)">{file}</span>
+            <span class="sf-mono type-caption2" style="color: var(--tertiary-label)">{String(i + 1).padStart(2, "0")}</span>
+          </figcaption>
+        </figure>
+      ))}
+    </div>
+  )}
 </section>

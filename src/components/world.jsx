@@ -68,6 +68,7 @@ const World = (props) => {
   const [time, setTime] = useState(new Date(storeDate));
   const [satPosition, setSatPosition] = useState(null);
   const lastOrbitUpdate = useRef(0);
+  const lastOrbitMission = useRef(0);
 
 
   useEffect(() => {
@@ -106,10 +107,17 @@ const World = (props) => {
       });
     }
 
-    // Slower update for orbit path
-    const now = time.getTime();
-    if (now - lastOrbitUpdate.current > 1000) { // Update every 1 second
-      lastOrbitUpdate.current = now;
+    // Slower update for orbit path — throttled on WALL-CLOCK time, not mission
+    // time. Mission time can jump backwards (reset / scrub), which made
+    // `missionNow - last` hugely negative and froze the orbit forever while
+    // the sat marker kept moving → desync. A large mission jump forces an
+    // immediate recompute so reset re-syncs instantly.
+    const missionNow = time.getTime();
+    const wallNow = Date.now();
+    const missionJumped = Math.abs(missionNow - lastOrbitMission.current) > 60 * 1000;
+    if (wallNow - lastOrbitUpdate.current > 1000 || missionJumped) { // Update at most 1/sec, or immediately on jump
+      lastOrbitUpdate.current = wallNow;
+      lastOrbitMission.current = missionNow;
 
       let OrbitPaths = []
       let tiempo = new Date(time.getTime() - 30 * 60 * 1000)
@@ -166,34 +174,49 @@ const World = (props) => {
   }, []);
 
   useEffect(() => {
-    if (!globeEl.current) return;
-    setGlobeRadius(globeEl.current.getGlobeRadius());
-    globeEl.current.pointOfView({ altitude: 3.5 });
+    // Globe mounts async (client:only). Poll until the ref is ready,
+    // then capture radius + set initial point of view exactly once.
+    let cancelled = false;
+    let attempts = 0;
+    const waitForGlobe = () => {
+      if (cancelled) return;
+      if (globeEl.current) {
+        try {
+          setGlobeRadius(globeEl.current.getGlobeRadius());
+          globeEl.current.pointOfView({ altitude: 3.5 });
+        } catch { /* globe not ready yet */ }
+        return;
+      }
+      if (++attempts < 60) requestAnimationFrame(waitForGlobe);
+    };
+    waitForGlobe();
+    return () => { cancelled = true; };
   }, []);
 
   useEffect(() => {
-    if (globeEl.current && satPosition) {
+    if (!globeEl.current || !satPosition) return;
+    try {
       const { lat, lng } = satPosition;
       const pov = globeEl.current.pointOfView();
-      // Center view on satellite
+      // Center view on satellite (orbit + camera follow the sat)
       globeEl.current.pointOfView({
         lat,
         lng,
         altitude: pov.altitude
       });
-    }
+    } catch { /* globe transitioning — skip this frame */ }
   }, [satPosition]);
 
 
 
   if (!webglOK) {
     return (
-      <div style={{ width: '100%', height: '100%', minHeight: '380px', display: 'flex', alignItems: 'center', justifyContent: 'center', background: '#050810', padding: '24px', textAlign: 'center' }}>
+      <div style={{ width: '100%', height: '100%', minHeight: '380px', display: 'flex', alignItems: 'center', justifyContent: 'center', background: 'var(--grouped-card)', padding: '24px', textAlign: 'center' }}>
         <div>
-          <p style={{ color: '#93c5fd', fontWeight: 'bold', marginBottom: '8px' }}>3D globe unavailable</p>
-          <p style={{ color: '#9ca3af', fontSize: '14px', maxWidth: '420px' }}>
-            This browser has WebGL disabled, so the Earth cannot render here.
-            Enable hardware acceleration in your browser settings and reload — the orbit data and telemetry below work without it.
+          <p style={{ color: 'var(--label)', fontWeight: 'bold', marginBottom: '8px' }}>Globo 3D no disponible</p>
+          <p style={{ color: 'var(--secondary-label)', fontSize: '14px', maxWidth: '420px' }}>
+            Este navegador tiene WebGL desactivado, así que la Tierra no puede dibujarse aquí.
+            Activa la aceleración de hardware y recarga — la órbita y la telemetría funcionan sin el globo.
           </p>
         </div>
       </div>
@@ -209,6 +232,9 @@ const World = (props) => {
       height={frameSize.height}
       globeImageUrl={tierra.src}
       objectsData={objectsData}
+      objectLat="lat"
+      objectLng="lng"
+      objectAlt="alt"
       objectThreeObject={satObject}
       pathsData={orbitPaths}
       pathPoints="points"

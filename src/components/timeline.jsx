@@ -1,131 +1,124 @@
 import React, { useState, useEffect, useCallback } from 'react';
 import { Range } from 'react-range';
 import { useStore } from '@nanostores/react';
-import { timeDataStore, initialStartTime, initialEndTime} from '../scripts/timeData.ts';
+import { timeDataStore, initialStartTime, initialEndTime, initialCurrentTime } from '../scripts/timeData.ts';
 
-// Utility Functions
 const formatTime = (ms) => {
   const date = new Date(ms);
-  const options = {
-    year: 'numeric',
-    month: 'numeric',
-    day: 'numeric',
-    hour: '2-digit',
-    minute: '2-digit',
-    second: '2-digit',
-    hour12: false,
-  };
-  return date.toLocaleString('en-US', options);
+  return date.toLocaleString('es-MX', {
+    year: 'numeric', month: 'short', day: 'numeric',
+    hour: '2-digit', minute: '2-digit', second: '2-digit', hour12: false,
+  });
 };
 
-const snapToStep = (value, step, min) =>
-  Math.round((value - min) / step) * step + min;
-
 const HOUR_IN_MS = 1000 * 60 * 60;
-const PLAY_SPEED = 50000; // Speed factor for playback
-const UPDATE_INTERVAL = 10; // Update interval in ms
+const PLAY_SPEED = 50000;
+const UPDATE_INTERVAL = 10;
 
 const TimelineSlider = () => {
-  // Get store data
   const { range: [storeStartTime, storeEndTime], date: storeDate } = useStore(timeDataStore);
 
-  // Local state
   const [rangeValues, setRangeValues] = useState([storeStartTime, storeEndTime]);
   const [debouncedRange, setDebouncedRange] = useState(rangeValues);
   const [currentTimeMs, setCurrentTimeMs] = useState(storeDate);
   const [isPlaying, setIsPlaying] = useState(false);
 
-  // Derived values
   const [startTimeMs, endTimeMs] = rangeValues;
 
-  // Debounce range updates to avoid overloading store listeners
   useEffect(() => {
-    const timeoutId = setTimeout(() => {
-      setDebouncedRange(rangeValues);
-    }, 500);
-    return () => clearTimeout(timeoutId);
+    const t = setTimeout(() => setDebouncedRange(rangeValues), 500);
+    return () => clearTimeout(t);
   }, [rangeValues]);
 
-  // Update global store when local state changes
   useEffect(() => {
-    timeDataStore.set({
-      date: currentTimeMs,
-      range: debouncedRange,
-    });
+    timeDataStore.set({ date: currentTimeMs, range: debouncedRange });
   }, [currentTimeMs, debouncedRange]);
 
-  // Handlers
   const handleRangeChange = useCallback((values) => {
     const [newStart, newEnd] = values;
     setRangeValues(values);
-    // Adjust current time if outside new range
-    setCurrentTimeMs(current =>
-      Math.min(Math.max(current, newStart), newEnd)
-    );
+    setCurrentTimeMs((current) => Math.min(Math.max(current, newStart), newEnd));
   }, []);
 
   const handleCurrentTimeChange = useCallback((e) => {
-    const newTime = Number(e.target.value);
-    setCurrentTimeMs(Math.min(Math.max(newTime, startTimeMs), endTimeMs));
+    setCurrentTimeMs(Math.min(Math.max(Number(e.target.value), startTimeMs), endTimeMs));
     setIsPlaying(false);
   }, [startTimeMs, endTimeMs]);
 
   const handleReset = useCallback(() => {
+    // NOTE: resetting to storeDate is a no-op — the store mirrors local state
+    // (see effect below), so storeDate === currentTimeMs. Reset to the true
+    // initial values instead, and push the range through immediately so the
+    // globe + plots update without waiting out the 500ms debounce.
     setRangeValues([initialStartTime, initialEndTime]);
-    setCurrentTimeMs(storeDate);
+    setDebouncedRange([initialStartTime, initialEndTime]);
+    setCurrentTimeMs(initialCurrentTime);
     setIsPlaying(false);
-  }, [storeStartTime, storeEndTime, storeDate]);
+  }, []);
 
-  // Playback effect
   useEffect(() => {
     if (!isPlaying) return;
-
-    const intervalId = setInterval(() => {
-      setCurrentTimeMs(prevTime => {
-        const newTime = prevTime + PLAY_SPEED;
-        if (newTime >= endTimeMs) {
-          setIsPlaying(false);
-          return endTimeMs;
-        }
-        return newTime;
+    const id = setInterval(() => {
+      setCurrentTimeMs((prev) => {
+        const next = prev + PLAY_SPEED;
+        if (next >= endTimeMs) { setIsPlaying(false); return endTimeMs; }
+        return next;
       });
     }, UPDATE_INTERVAL);
-
-    return () => clearInterval(intervalId);
+    return () => clearInterval(id);
   }, [isPlaying, endTimeMs]);
 
-  return (
-    <div className="p-4 bg-gray-900 text-white shadow-2xl w-full rounded-2xl border border-white/10">
-      <h1 className="text-xl font-bold mb-3 text-center text-blue-300">
-        Timeline Control
-      </h1>
+  const pct = (v) => ((v - initialStartTime) / (initialEndTime - initialStartTime)) * 100;
 
-      <div className="flex flex-col md:flex-row items-center space-y-3 md:space-y-0 md:space-x-6">
-        {/* Playback Controls */}
-        <div className="flex flex-col items-center justify-center w-full md:w-1/4 min-w-[250px] space-y-2">
-          <span className="text-base font-mono font-semibold text-green-400">
+  return (
+    <div
+      className="apple-card"
+      style={{ padding: 20, borderRadius: 'var(--radius-l)' }}
+      role="group"
+      aria-label="Control de línea de tiempo"
+    >
+      <div className="flex items-center justify-between flex-wrap" style={{ gap: 8, marginBottom: 12 }}>
+        <h2 className="type-headline" style={{ fontSize: 15 }}>Línea de tiempo</h2>
+        <span className="sf-mono type-footnote" style={{ color: 'var(--secondary-label)' }}>
+          {new Date(startTimeMs).getFullYear()} — {new Date(endTimeMs).getFullYear()}
+        </span>
+      </div>
+
+      <div className="flex flex-col md:flex-row items-stretch md:items-center" style={{ gap: 16 }}>
+        {/* Playback cluster — 44pt targets */}
+        <div className="flex flex-col items-center justify-center" style={{ gap: 8, minWidth: 220 }}>
+          <span className="sf-mono type-callout" style={{ fontWeight: 600 }} aria-live="polite">
             {formatTime(currentTimeMs)}
           </span>
-
-          <div className="flex space-x-3">
+          <div className="flex" style={{ gap: 8 }}>
             <button
               onClick={() => setIsPlaying(!isPlaying)}
-              className={`px-4 py-1 rounded-full text-sm font-bold transition duration-300 shadow-md 
-                ${isPlaying ? 'bg-red-600 hover:bg-red-700' : 'bg-green-600 hover:bg-green-700'}`}
+              className="apple-btn"
+              style={{
+                minHeight: 44, fontSize: 15, padding: '0 20px',
+                background: isPlaying ? 'var(--system-red)' : 'var(--system-blue)',
+                color: '#fff',
+              }}
+              aria-pressed={isPlaying}
             >
-              {isPlaying ? '⏸ Pause' : '▶ Play'}
+              {isPlaying ? '❚❚ Pausa' : '▶ Ver viaje'}
             </button>
             <button
               onClick={handleReset}
-              className="px-4 py-1 rounded-full text-sm bg-gray-600 text-white font-bold hover:bg-gray-500 transition duration-300 shadow-md"
+              className="apple-btn apple-btn-gray"
+              style={{ minHeight: 44, fontSize: 15 }}
+              aria-label="Restablecer rango"
             >
-              🔄 Reset
+              ↺
             </button>
           </div>
         </div>
 
         {/* Sliders */}
-        <div className="flex-1 w-full space-y-4">
+        <div className="flex-1 w-full" style={{ display: 'grid', gap: 4 }}>
+          <label className="sf-mono type-caption1" style={{ color: 'var(--secondary-label)', letterSpacing: '0.06em' }}>
+            RANGO DE ARCHIVO
+          </label>
           <Range
             step={HOUR_IN_MS}
             min={initialStartTime}
@@ -133,43 +126,74 @@ const TimelineSlider = () => {
             values={rangeValues}
             onChange={handleRangeChange}
             renderTrack={({ props, children }) => {
-              const { key, ...trackProps } = props;
+              // IMPORTANT: react-range positions thumbs via props.style (absolute + left %).
+              // We must merge — never replace — trackProps.style, and keep {children}
+              // (the thumbs) as direct children of the measured track element.
+              const { key, style, ...trackProps } = props;
               return (
                 <div
                   key={key}
                   {...trackProps}
-                  className="h-2 w-full bg-gray-700 rounded-full relative"
+                  style={{
+                    ...style,
+                    position: 'relative',
+                    height: 44, display: 'flex', alignItems: 'center', width: '100%',
+                    touchAction: 'pan-y',
+                  }}
                 >
-                  <div
-                    className="absolute h-2 bg-blue-500 rounded-full"
-                    style={{
-                      left: `${((startTimeMs - initialStartTime) / (initialEndTime - initialStartTime)) * 100}%`,
-                      width: `${((endTimeMs - startTimeMs) / (initialEndTime - initialStartTime)) * 100}%`,
-                    }}
-                  />
+                  <div style={{
+                    height: 6, width: '100%', borderRadius: 999,
+                    background: 'var(--fill-tertiary)', position: 'relative', overflow: 'hidden',
+                  }}>
+                    <div style={{
+                      position: 'absolute', top: 0, bottom: 0, borderRadius: 999,
+                      background: 'var(--system-blue)',
+                      left: `${pct(startTimeMs)}%`, width: `${Math.max(pct(endTimeMs) - pct(startTimeMs), 0)}%`,
+                    }} />
+                  </div>
                   {children}
                 </div>
               );
             }}
-            renderThumb={({ props }) => {
-              const { key, ...thumbProps } = props;
+            renderThumb={({ props, index, isDragged }) => {
+              // IMPORTANT: thumbProps.style carries position:absolute + left/top.
+              // Merging preserves drag positioning; replacing it stacks all thumbs at 0,0.
+              const { key, style, ...thumbProps } = props;
               return (
                 <div
                   key={key}
                   {...thumbProps}
-                  className="h-5 w-5 bg-white border-2 border-blue-500 rounded-full shadow-md focus:outline-none focus:ring-2 focus:ring-blue-400"
-                />
+                  role="slider"
+                  aria-label={index === 0 ? 'Inicio del rango' : 'Fin del rango'}
+                  style={{
+                    ...style,
+                    height: 28, width: 28, borderRadius: '50%',
+                    background: 'var(--grouped-card)',
+                    border: '0.5px solid var(--separator)',
+                    boxShadow: 'var(--shadow-2)',
+                    display: 'flex', alignItems: 'center', justifyContent: 'center',
+                    cursor: isDragged ? 'grabbing' : 'grab',
+                    // Preserve react-range's centering translate, append press scale.
+                    transform: `${style?.transform ?? ''}${isDragged ? ' scale(1.15)' : ''}`,
+                    transition: 'transform var(--spring-fast), box-shadow var(--spring-fast)',
+                  }}
+                >
+                  <div style={{ width: 10, height: 10, borderRadius: '50%', background: 'var(--system-blue)', pointerEvents: 'none' }} />
+                </div>
               );
             }}
           />
-
+          <label className="sf-mono type-caption1" style={{ color: 'var(--secondary-label)', letterSpacing: '0.06em' }}>
+            INSTANTE ACTUAL
+          </label>
           <input
             type="range"
             min={startTimeMs}
             max={endTimeMs}
             value={currentTimeMs}
             onChange={handleCurrentTimeChange}
-            className="w-full h-3 bg-green-500 rounded-lg appearance-none cursor-pointer range-thumb-green"
+            aria-label="Instante actual de la misión"
+            style={{ width: '100%', accentColor: 'var(--system-green)', cursor: 'pointer' }}
           />
         </div>
       </div>
