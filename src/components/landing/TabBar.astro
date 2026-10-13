@@ -1,16 +1,13 @@
 ---
-/* Apple HIG Bottom Tab Bar — mobile primary navigation. No burger menus.
-   5 destinations, each ≥44pt, spring active state, safe-area aware. */
 const tabs = [
   { href: "#mision", label: "Misión", icon: "orbit" },
   { href: "#viaje", label: "Viaje", icon: "play" },
   { href: "#fotos", label: "Fotos", icon: "photos" },
-  { href: "#nave", label: "Nave", icon: "cube" },
   { href: "#hitos", label: "Hitos", icon: "flag" },
 ];
 ---
 <nav class="material-tab hairline-t fixed inset-x-0 bottom-0 z-50 md:hidden" aria-label="Navegación principal" style="padding-bottom: env(safe-area-inset-bottom)">
-  <div class="grid grid-cols-5 px-2 pt-1">
+  <div class="grid grid-cols-4 px-2 pt-1">
     {tabs.map((t) => (
       <a href={t.href} data-spy class="tab-item" aria-label={t.label}>
         {t.icon === "orbit" && (

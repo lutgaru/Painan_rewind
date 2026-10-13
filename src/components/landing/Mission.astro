@@ -1,81 +1,134 @@
 ---
 import mission from "../../data/mission.json";
+
+const ficha = mission.quickFacts.filter((f) =>
+  ["Plataforma", "Órbita", "Operador", "Desarrollador"].includes(f.label)
+);
+
+const subsystems = [
+  { name: "OBC", desc: "Computadora de a bordo" },
+  { name: "EPS", desc: "Paneles + baterías" },
+  { name: "COMMS", desc: "Banda S · FH" },
+  { name: "ADCS", desc: "Giróscopos + sensores" },
+  { name: "Cámaras ×4", desc: "Espectro visible" },
+  { name: "GPS", desc: "Fix / no-fix" },
+];
 ---
 <section id="mision" class="apple-gutter" style="padding-top: 32px; padding-bottom: 32px; scroll-margin-top: 72px">
   <div class="reveal" style="margin-bottom: 16px">
-    <p class="type-eyebrow" style="color: var(--system-blue)">Misión</p>
+    <p class="type-eyebrow" style="color: var(--system-blue)">Misión · Nave</p>
     <h2 class="type-title1" style="margin-top: 4px">Un mensajero veloz,<br />hecho en México.</h2>
+    <p class="type-callout" style="color: var(--secondary-label); margin-top: 8px; max-width: 680px">
+      <strong class="type-headline">Propósito. </strong>{mission.purpose}
+    </p>
   </div>
 
-  <div class="mission-grid">
-    <div class="apple-card reveal" style="padding: 24px">
-      <p class="type-body">{mission.description}</p>
-      <p class="type-callout" style="margin-top: 16px; color: var(--secondary-label)">
-        <strong class="type-headline">Propósito. </strong>{mission.purpose}
-      </p>
+  <div class="mission-stack">
+    {/* FILA 1 — Lanzamiento + Carga útil lado a lado */}
+    <div class="apple-card reveal" style="padding: 20px">
+      <div class="mission-inner-2">
+        <div>
+          <h3 class="sf-mono type-caption1" style="color: var(--system-green); letter-spacing: 0.08em">LANZAMIENTO · MAKE IT RAIN</h3>
+          <ul style="margin-top: 8px; display: grid; gap: 0">
+            <li class="grouped-row" style="background: transparent; padding: 6px 0; min-height: 0">
+              <span class="type-footnote" style="color: var(--secondary-label)">Fecha</span>
+              <span class="type-footnote" style="font-weight: 600; text-align: right">29 jun 2019 · 04:30 UTC</span>
+            </li>
+            <li class="grouped-row" style="background: transparent; padding: 6px 0; min-height: 0">
+              <span class="type-footnote" style="color: var(--secondary-label)">Vehículo</span>
+              <span class="type-footnote" style="font-weight: 600; text-align: right">{mission.launch.vehicle}</span>
+            </li>
+            <li class="grouped-row" style="background: transparent; padding: 6px 0; min-height: 0">
+              <span class="type-footnote" style="color: var(--secondary-label)">Sitio</span>
+              <span class="type-footnote" style="font-weight: 600; text-align: right">{mission.launch.site}</span>
+            </li>
+            <li class="grouped-row" style="background: transparent; padding: 6px 0; min-height: 0">
+              <span class="type-footnote" style="color: var(--secondary-label)">Rideshare</span>
+              <span class="type-footnote" style="font-weight: 600; text-align: right; max-width: 55%">{mission.launch.rideshare}</span>
+            </li>
+          </ul>
+          <p class="type-footnote" style="margin-top: 8px; color: var(--tertiary-label)">{mission.launch.note}</p>
+        </div>
 
-      <div style="margin-top: 24px; border-radius: var(--radius-m); background: var(--secondary-grouped-card); padding: 16px">
-        <h3 class="sf-mono type-caption1" style="color: var(--system-green); letter-spacing: 0.08em">LANZAMIENTO · MAKE IT RAIN</h3>
-        <ul style="margin-top: 12px; display: grid; gap: 0">
-          <li class="grouped-row" style="background: transparent; padding-inline: 0">
-            <span class="type-subhead" style="color: var(--secondary-label)">Fecha</span>
-            <span class="type-subhead" style="font-weight: 600; text-align: right">29 jun 2019 · 04:30 UTC</span>
-          </li>
-          <li class="grouped-row" style="background: transparent; padding-inline: 0">
-            <span class="type-subhead" style="color: var(--secondary-label)">Vehículo</span>
-            <span class="type-subhead" style="font-weight: 600; text-align: right">{mission.launch.vehicle}</span>
-          </li>
-          <li class="grouped-row" style="background: transparent; padding-inline: 0">
-            <span class="type-subhead" style="color: var(--secondary-label)">Sitio</span>
-            <span class="type-subhead" style="font-weight: 600; text-align: right">{mission.launch.site}</span>
-          </li>
-          <li class="grouped-row" style="background: transparent; padding-inline: 0">
-            <span class="type-subhead" style="color: var(--secondary-label)">Rideshare</span>
-            <span class="type-subhead" style="font-weight: 600; text-align: right; max-width: 55%">{mission.launch.rideshare}</span>
-          </li>
-        </ul>
-        <p class="type-footnote" style="margin-top: 12px; color: var(--tertiary-label)">{mission.launch.note}</p>
+        <div class="mission-divide">
+          <h3 class="sf-mono type-caption1" style="color: var(--system-green); letter-spacing: 0.08em">CARGA ÚTIL</h3>
+          <ul style="margin-top: 4px">
+            {mission.payload.map((item) => (
+              <li class="flex" style="gap: 10px; padding: 7px 0; border-bottom: 0.5px solid var(--separator)">
+                <span aria-hidden="true" style="width: 6px; height: 6px; margin-top: 6px; border-radius: 50%; flex-shrink: 0; background: var(--system-blue)"></span>
+                <span class="type-footnote">{item}</span>
+              </li>
+            ))}
+          </ul>
+        </div>
       </div>
     </div>
 
-    {/* Datos — archivo + ficha técnica en una sola tarjeta */}
-    <div class="apple-card reveal" style="padding: 24px; align-self: start">
-      <h3 class="sf-mono type-caption1" style="color: var(--system-blue); letter-spacing: 0.08em">EL ARCHIVO EN ESTA PÁGINA</h3>
-      <div class="grid grid-cols-3" style="gap: 8px; margin-top: 16px">
-        <div class="pressable" style="border-radius: var(--radius-m); background: color-mix(in srgb, var(--system-green) 12%, transparent); padding: 16px 8px; text-align: center">
-          <p class="sf-mono type-title2" style="color: var(--system-green)">{mission.archive.shortBeacons.toLocaleString("es-MX")}</p>
-          <p class="type-caption1" style="color: var(--secondary-label); margin-top: 4px">balizas<br />cortas</p>
+    {/* FILA 2 — Archivo + Ficha + Subsistemas lado a lado */}
+    <div class="apple-card reveal" style="padding: 20px">
+      <div class="mission-inner-3">
+        <div>
+          <h3 class="sf-mono type-caption1" style="color: var(--system-blue); letter-spacing: 0.08em">EL ARCHIVO</h3>
+          <ul style="margin-top: 12px; display: grid; gap: 8px">
+            <li class="pressable flex items-center" style="gap: 12px; border-radius: var(--radius-m); background: var(--secondary-grouped-card); padding: 10px 12px">
+              <span aria-hidden="true" style="width: 10px; height: 10px; border-radius: 3px; flex-shrink: 0; background: var(--system-green)"></span>
+              <span class="sf-mono type-headline" style="color: var(--system-green)">{mission.archive.shortBeacons.toLocaleString("es-MX")}</span>
+              <span class="type-footnote" style="color: var(--secondary-label); margin-left: auto; text-align: right">balizas cortas</span>
+            </li>
+            <li class="pressable flex items-center" style="gap: 12px; border-radius: var(--radius-m); background: var(--secondary-grouped-card); padding: 10px 12px">
+              <span aria-hidden="true" style="width: 10px; height: 10px; border-radius: 3px; flex-shrink: 0; background: var(--system-blue)"></span>
+              <span class="sf-mono type-headline" style="color: var(--system-blue)">{mission.archive.longBeacons.toLocaleString("es-MX")}</span>
+              <span class="type-footnote" style="color: var(--secondary-label); margin-left: auto; text-align: right">balizas largas</span>
+            </li>
+            <li class="pressable flex items-center" style="gap: 12px; border-radius: var(--radius-m); background: var(--secondary-grouped-card); padding: 10px 12px">
+              <span aria-hidden="true" style="width: 10px; height: 10px; border-radius: 3px; flex-shrink: 0; background: #af52de"></span>
+              <span class="sf-mono type-headline" style="color: #af52de">{mission.archive.tleCount.toLocaleString("es-MX")}</span>
+              <span class="type-footnote" style="color: var(--secondary-label); margin-left: auto; text-align: right">TLEs históricos</span>
+            </li>
+          </ul>
+          <p class="type-callout" style="margin-top: 12px">Cobertura <strong>{mission.archive.coverage}</strong></p>
         </div>
-        <div class="pressable" style="border-radius: var(--radius-m); background: color-mix(in srgb, var(--system-blue) 12%, transparent); padding: 16px 8px; text-align: center">
-          <p class="sf-mono type-title2" style="color: var(--system-blue)">{mission.archive.longBeacons.toLocaleString("es-MX")}</p>
-          <p class="type-caption1" style="color: var(--secondary-label); margin-top: 4px">balizas<br />largas</p>
+
+        <div class="mission-divide">
+          <h3 class="sf-mono type-caption1" style="color: var(--secondary-label); letter-spacing: 0.08em">FICHA · 3U CUBESAT</h3>
+          <dl class="grouped-list" style="border-radius: 12px; margin-top: 12px">
+            {ficha.map((f) => (
+              <div class="grouped-row" style="background: var(--secondary-grouped-card); min-height: 40px; padding: 8px 12px">
+                <dt class="type-footnote" style="color: var(--secondary-label)">{f.label}</dt>
+                <dd class="sf-mono type-footnote" style="font-weight: 600; text-align: right">{f.value}</dd>
+              </div>
+            ))}
+          </dl>
         </div>
-        <div class="pressable" style="border-radius: var(--radius-m); background: color-mix(in srgb, #af52de 12%, transparent); padding: 16px 8px; text-align: center">
-          <p class="sf-mono type-title2" style="color: #af52de">{mission.archive.tleCount.toLocaleString("es-MX")}</p>
-          <p class="type-caption1" style="color: var(--secondary-label); margin-top: 4px">TLEs<br />históricos</p>
+
+        <div class="mission-divide">
+          <h3 class="sf-mono type-caption1" style="color: var(--system-blue); letter-spacing: 0.08em">SUBSISTEMAS</h3>
+          <ul class="grid grid-cols-2" style="gap: 8px; margin-top: 12px">
+            {subsystems.map((s) => (
+              <li class="pressable" style="border-radius: var(--radius-m); background: var(--secondary-grouped-card); padding: 10px">
+                <p class="type-headline" style="font-size: 14px">{s.name}</p>
+                <p class="type-footnote" style="color: var(--secondary-label); margin-top: 2px">{s.desc}</p>
+              </li>
+            ))}
+          </ul>
         </div>
       </div>
-      <p class="type-callout" style="margin-top: 16px">Cobertura <strong>{mission.archive.coverage}</strong></p>
-      <p class="type-footnote" style="margin-top: 8px; color: var(--secondary-label)">{mission.archive.note}</p>
 
-      <div class="hairline-t" style="margin-top: 20px; padding-top: 16px">
-        <h3 class="sf-mono type-caption1" style="color: var(--secondary-label); letter-spacing: 0.08em">FICHA TÉCNICA</h3>
-        <dl class="grouped-list" style="border-radius: 12px; margin-top: 12px">
-          {mission.quickFacts.map((f) => (
-            <div class="grouped-row" style="background: var(--secondary-grouped-card); min-height: 44px; padding: 10px 14px">
-              <dt class="type-footnote" style="color: var(--secondary-label)">{f.label}</dt>
-              <dd class="sf-mono type-footnote" style="font-weight: 600; text-align: right">{f.value}</dd>
-            </div>
-          ))}
-        </dl>
+      <div class="hairline-t flex flex-wrap items-center justify-between" style="gap: 12px; margin-top: 16px; padding-top: 16px">
+        <p class="type-footnote" style="color: var(--secondary-label); max-width: 560px">{mission.archive.note}</p>
+        <a href="#viaje" class="apple-btn apple-btn-tinted">Abrir el Rewind</a>
       </div>
-
-      <a href="#viaje" class="apple-btn apple-btn-tinted" style="width: 100%; margin-top: 16px">Abrir el Rewind</a>
     </div>
   </div>
 </section>
 
 <style>
-  .mission-grid { display: grid; gap: 16px; grid-template-columns: 1fr; }
-  @media (min-width: 900px) { .mission-grid { grid-template-columns: 1.1fr 0.9fr; gap: 24px; } }
+  .mission-stack { display: grid; gap: 16px; }
+  .mission-inner-2 { display: grid; gap: 20px; grid-template-columns: 1fr; }
+  .mission-inner-3 { display: grid; gap: 20px; grid-template-columns: 1fr; }
+  @media (min-width: 900px) {
+    .mission-inner-2 { grid-template-columns: 0.9fr 1.1fr; gap: 20px; }
+    .mission-inner-3 { grid-template-columns: 1.15fr 0.95fr 0.95fr; gap: 20px; }
+    .mission-divide { border-left: 0.5px solid var(--separator); padding-left: 20px; }
+  }
 </style>

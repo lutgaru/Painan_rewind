@@ -2,8 +2,8 @@
   "name": "PAINANI-1",
   "fullName": "PAINANI-I · Primer nanosatélite mexicano",
   "tagline": "El mensajero veloz de México — revive su viaje completo.",
-  "status": "Misión finalizada · Archivo Voyage",
-  "description": "Nanosatélite experimental 3U CubeSat diseñado, construido y ensamblado por personal del Departamento de Electrónica y Telecomunicaciones del CICESE en 2018 bajo el estándar CubeSat. Patrocinado por la Secretaría de la Defensa Nacional (SEDENA), sirvió como plataforma de aprendizaje e investigación para la Universidad del Ejército y Fuerza Aérea Mexicana. Fue el primer nanosatélite desarrollado por una institución académica mexicana transferido a un usuario.",
+  "status": "Misión finalizada · Archivo del viaje",
+  "description": "Fue un nanosatélite experimental 3U CubeSat diseñado, construido y ensamblado por personal del Departamento de Electrónica y Telecomunicaciones del CICESE en 2018 bajo el estándar CubeSat. Patrocinado por la Secretaría de la Defensa Nacional (SEDENA), sirvió como plataforma de aprendizaje e investigación para la Universidad del Ejército y Fuerza Aérea Mexicana. Fue el primer nanosatélite desarrollado por una institución académica mexicana transferido a un usuario.",
   "quickFacts": [
     { "label": "Plataforma", "value": "3U CubeSat · 3.3 kg" },
     { "label": "Lanzamiento", "value": "29 Jun 2019 · Electron KS" },
@@ -40,7 +40,7 @@
     { "date": "2018", "title": "Diseño y ensamble", "text": "CICESE diseña, construye y ensambla el Painani-I bajo estándar CubeSat." },
     { "date": "29 Jun 2019", "title": "Lanzamiento", "text": "Despega en Electron KS desde Mahia, Nueva Zelanda, como rideshare." },
     { "date": "2019 – 2020", "title": "Primer contacto y operaciones", "text": "Se establece operación y descarga de balizas cortas y largas + fotos sobre México." },
-    { "date": "2020 – 2023", "title": "El Voyage", "text": "16 164 balizas cortas y 1 953 largas archivadas. Recórrelas abajo en el globo y las gráficas." },
+    { "date": "2020 – 2023", "title": "El Viaje", "text": "16 164 balizas cortas y 1 953 largas archivadas. Recórrelas abajo en el globo y las gráficas." },
     { "date": "Hoy", "title": "Misión finalizada", "text": "Painani-1 cierra operaciones. Esta página preserva su viaje con fotos SAT y telemetría." }
   ],
   "sources": [
