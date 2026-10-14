@@ -6,6 +6,7 @@ interface Props {
   description?: string;
 }
 const { title = "PAINANI-1 · Mission", description = "El mensajero veloz de México — archivo vivo de la misión PAINANI-1 con globo 3D, telemetría y fotos SAT." } = Astro.props;
+const base = import.meta.env.BASE_URL;
 ---
 <!doctype html>
 <html lang="es" data-theme="dark">
@@ -14,8 +15,8 @@ const { title = "PAINANI-1 · Mission", description = "El mensajero veloz de Mé
     <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover" />
     <meta name="theme-color" content="#000000" media="(prefers-color-scheme: dark)" />
     <meta name="theme-color" content="#f2f2f7" media="(prefers-color-scheme: light)" />
-    <link rel="icon" type="image/png" href="/painani1.png" />
-    <link rel="apple-touch-icon" href="/painani1.png" />
+    <link rel="icon" type="image/png" href={`${base}painani1.png`} />
+    <link rel="apple-touch-icon" href={`${base}painani1.png`} />
     <meta name="generator" content={Astro.generator} />
     <meta name="description" content={description} />
     <title>{title}</title>

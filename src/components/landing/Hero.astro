@@ -1,5 +1,6 @@
 ---
 import mission from "../../data/mission.json";
+const base = import.meta.env.BASE_URL;
 ---
 <header id="top" class="apple-gutter parallax-stage" style="padding-top: 24px; padding-bottom: 32px">
   {/* Parallax background — transparent sat render floating behind content */}
@@ -9,7 +10,7 @@ import mission from "../../data/mission.json";
       <img
         id="hero-sat-img"
         class="parallax-img"
-        src="/sinfondo3.png"
+        src={`${base}sinfondo3.png`}
         alt=""
         decoding="async"
         fetchpriority="high"

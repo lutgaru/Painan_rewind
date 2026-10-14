@@ -7,6 +7,8 @@ import react from '@astrojs/react';
 
 // https://astro.build/config
 export default defineConfig({
+  site: 'https://lutgaru.github.io',
+  base: '/Painan_rewind/',
   vite: {
     plugins: [tailwindcss()]
   },
