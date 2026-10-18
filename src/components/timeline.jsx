@@ -14,6 +14,10 @@ const WEEK = 7 * DAY;
 const PLAY_SPEED = 5_000_000;
 const STORE_DEBOUNCE = 500;
 
+// Playback speed multipliers offered by the speed slider (× base PLAY_SPEED).
+const SPEED_STEPS = [0.25, 0.5, 1, 2, 4, 8, 16];
+const DEFAULT_SPEED_IDX = 2; // 1×
+
 const BODY_TOP = 8;       // ruler body offset (room for the playhead pin)
 const BODY_HEIGHT = 34;   // ruler body height
 const LABEL_TOP = BODY_TOP + BODY_HEIGHT + 4;
@@ -231,9 +235,18 @@ const TimelineSlider = () => {
   const [isPlaying, setIsPlaying] = useState(false);
   const [dragging, setDragging] = useState(null);
   const [width, setWidth] = useState(640);
+  const [speedIdx, setSpeedIdx] = useState(DEFAULT_SPEED_IDX);
 
   const trackRef = useRef(null);
   const dragRef = useRef(null);
+
+  // Read the live speed inside the rAF loop without re-running the effect
+  // (changing speed mid-play must not restart the loop or reset `last`).
+  const speedRef = useRef(SPEED_STEPS[DEFAULT_SPEED_IDX]);
+  const setSpeed = useCallback((idx) => {
+    setSpeedIdx(idx);
+    speedRef.current = SPEED_STEPS[idx];
+  }, []);
 
   const [startTimeMs, endTimeMs] = rangeValues;
   const span = Math.max(initialEndTime - initialStartTime, 1);
@@ -272,7 +285,7 @@ const TimelineSlider = () => {
     const tick = (now) => {
       const dt = now - last;
       last = now;
-      setCurrentTimeMs((prev) => Math.min(prev + (dt * PLAY_SPEED) / 1000, endTimeMs));
+      setCurrentTimeMs((prev) => Math.min(prev + (dt * PLAY_SPEED * speedRef.current) / 1000, endTimeMs));
       raf = requestAnimationFrame(tick);
     };
     raf = requestAnimationFrame(tick);
@@ -418,6 +431,32 @@ const TimelineSlider = () => {
           >
             ↺
           </button>
+
+          {/* Playback speed — discrete × steps, takes effect live while playing */}
+          <label
+            title="Velocidad de reproducción"
+            style={{
+              display: 'flex', alignItems: 'center', gap: 6,
+              height: 40, padding: '0 12px', borderRadius: 999,
+              background: 'var(--fill-tertiary)',
+            }}
+          >
+            <span className="sf-mono type-caption1" style={{ color: 'var(--secondary-label)', letterSpacing: '0.08em' }}>VEL</span>
+            <input
+              type="range"
+              min={0}
+              max={SPEED_STEPS.length - 1}
+              step={1}
+              value={speedIdx}
+              onChange={(e) => setSpeed(Number(e.target.value))}
+              aria-label="Velocidad de reproducción de la línea de tiempo"
+              aria-valuetext={`${SPEED_STEPS[speedIdx]}×`}
+              style={{ width: 88, minHeight: 40, height: 40, margin: 0, accentColor: 'var(--system-blue)', cursor: 'pointer' }}
+            />
+            <span className="sf-mono type-caption1" style={{ minWidth: 34, textAlign: 'right', fontWeight: 600, fontVariantNumeric: 'tabular-nums' }}>
+              {SPEED_STEPS[speedIdx]}×
+            </span>
+          </label>
         </div>
 
         <span className="sf-mono type-callout" style={{ fontWeight: 600 }} aria-live="off">

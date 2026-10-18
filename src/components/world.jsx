@@ -1,5 +1,5 @@
 import Globe from 'react-globe.gl';
-import React, { use } from 'react';
+import React from 'react';
 import tierra from '../assets/8k_earth_daymap.jpg'
 import * as THREE from 'three';
 import { useStore } from '@nanostores/react';
@@ -7,46 +7,21 @@ import { timeDataStore } from '../scripts/timeData.ts';
 import { getTLEbyDate } from '../scripts/tleManager.ts'
 import { twoline2satrec, gstime, propagate, eciToGeodetic, radiansToDegrees } from 'satellite.js';
 
-// var THREE=require('three')
-
-
-
 const { useState, useEffect, useRef, useMemo } = React;
 
 const EARTH_RADIUS_KM = 6371; // km
 const SAT_SIZE = 150; // km
-//const TIME_STEP = 1; // per frame
+
+// Orbit ring rebuild policy. Rebuilding is cheap now (geometry is updated in
+// place, never destroyed), but we still avoid doing it every frame.
+const ORBIT_SAMPLES = 180;          // points per revolution
+const ORBIT_REBUILD_MS = 400;       // wall-clock throttle
+const ORBIT_JUMP_MS = 30 * 60 * 1000; // force rebuild on big (scrub/reset) jumps
 
 const fmtUTC = new Intl.DateTimeFormat('es-MX', {
   year: 'numeric', month: 'short', day: '2-digit',
   hour: '2-digit', minute: '2-digit', second: '2-digit', hour12: false, timeZone: 'UTC',
 });
-
-function julianToDate(jd) {
-  const Z = Math.floor(jd + 0.5);
-  const F = jd + 0.5 - Z;
-  let A = Z;
-  if (Z >= 2299161) {
-    const alpha = Math.floor((Z - 1867216.25) / 36524.25);
-    A += 1 + alpha - Math.floor(alpha / 4);
-  }
-  const B = A + 1524;
-  const C = Math.floor((B - 122.1) / 365.25);
-  const D = Math.floor(365.25 * C);
-  const E = Math.floor((B - D) / 30.6001);
-
-  const day = B - D - Math.floor(30.6001 * E) + F;
-  let month = E < 14 ? E - 1 : E - 13;
-  let year = month > 2 ? C - 4716 : C - 4715;
-
-  const dayInt = Math.floor(day);
-  const dayFrac = day - dayInt;
-  const hours = Math.floor(dayFrac * 24);
-  const minutes = Math.floor((dayFrac * 24 - hours) * 60);
-  const seconds = Math.floor((((dayFrac * 24 - hours) * 60) - minutes) * 60);
-
-  return new Date(Date.UTC(year, month - 1, dayInt, hours, minutes, seconds));
-}
 
 function isWebGLAvailable() {
   try {
@@ -55,6 +30,27 @@ function isWebGLAvailable() {
   } catch {
     return false;
   }
+}
+
+// One full revolution of ground-track points, centred on `centerDate`,
+// sampled at uniform mission-time steps (no cumulative drift).
+function buildOrbitPoints(satrec, centerDate, samples = ORBIT_SAMPLES) {
+  const periodMin = satrec.no ? (2 * Math.PI) / satrec.no : 95;
+  const periodMs = periodMin * 60 * 1000;
+  const start = centerDate.getTime() - periodMs / 2;
+  const points = [];
+  for (let i = 0; i < samples; i++) {
+    const t = new Date(start + (periodMs * i) / (samples - 1));
+    const eci = propagate(satrec, t);
+    if (!eci || !eci.position) continue;
+    const gd = eciToGeodetic(eci.position, gstime(t));
+    points.push([
+      radiansToDegrees(gd.latitude),
+      radiansToDegrees(gd.longitude),
+      (gd.height / EARTH_RADIUS_KM) / 10,
+    ]);
+  }
+  return points;
 }
 
 const World = (props) => {
@@ -67,90 +63,68 @@ const World = (props) => {
   const globeEl = useRef();
   const containerRef = useRef();
   const [frameSize, setFrameSize] = useState({ width: 800, height: 600 });
-  const [satData, setSatData] = useState();
-  const [orbitPaths, setOrbitPaths] = useState([]);
   const [globeRadius, setGlobeRadius] = useState();
-  const [time, setTime] = useState(new Date(storeDate));
-  const [satPosition, setSatPosition] = useState(null);
-  const lastOrbitUpdate = useRef(0);
-  const lastOrbitMission = useRef(0);
 
+  const [objectsData, setObjectsData] = useState([]);
+  const [orbitPaths, setOrbitPaths] = useState([]);
+
+  // three-globe's data layer keys data by *object identity*. These datums are
+  // created once and mutated in place, so the digest only ever updates the
+  // existing marker/path instead of destroying and re-creating it each frame
+  // (which is what caused the flicker).
+  const satDatumRef = useRef({ id: null, lat: 0, lng: 0, alt: 0 });
+  const orbitDatumRef = useRef({ id: null, points: [] });
+  const satrecRef = useRef(null);
+  const satrecIdRef = useRef(null);
+  const lastOrbitWallRef = useRef(0);
+  const lastOrbitMissionRef = useRef(0);
 
   useEffect(() => {
-    // This effect detects changes from the timeDataStore and updates the local time state.
-    setTime(new Date(storeDate));
-    const tle = getTLEbyDate(new Date(storeDate));
-    // Create satrec object
-    const satrec = twoline2satrec(tle.TLE_LINE1, tle.TLE_LINE2);
+    const date = new Date(storeDate);
 
-    // Create satellite data object with ID
-    const satDataObj = {
-      satrec: satrec,
-      id: tle.TLE_LINE0
-    };
+    // Resolve the TLE + satrec only when the TLE actually changes,
+    // instead of re-parsing it on every frame.
+    const tle = getTLEbyDate(date);
+    const tleChanged = satrecIdRef.current !== tle.TLE_LINE0;
+    if (tleChanged || !satrecRef.current) {
+      satrecRef.current = twoline2satrec(tle.TLE_LINE1, tle.TLE_LINE2);
+      satrecIdRef.current = tle.TLE_LINE0;
+    }
+    const satrec = satrecRef.current;
+    if (!satrec) return;
 
-    // Set as array since objectsData expects array
-    if(      !satData || satData[0].id !== satDataObj.id    )
-      {
-    setSatData([satDataObj]);
-    console.log('TLE used for simulation:', tle.TLE_LINE0, tle.TLE_LINE1, tle.TLE_LINE2);
+    // ── Satellite position: mutate the stable datum, hand React a new array ──
+    const eci = propagate(satrec, date);
+    if (eci && eci.position) {
+      const gd = eciToGeodetic(eci.position, gstime(date));
+      const d = satDatumRef.current;
+      d.id = satrecIdRef.current;
+      d.lat = radiansToDegrees(gd.latitude);
+      d.lng = radiansToDegrees(gd.longitude);
+      d.alt = gd.height / EARTH_RADIUS_KM;
+      setObjectsData([d]);
+
+      // Follow the satellite — lat/lng only, so the user's zoom is preserved
+      // (passing altitude back and forth caused micro zoom jitter).
+      if (globeEl.current) {
+        try { globeEl.current.pointOfView({ lat: d.lat, lng: d.lng }); } catch { /* not ready */ }
+      }
+    }
+
+    // ── Orbit ring: throttle on wall-clock time or a large mission jump ──
+    const missionNow = date.getTime();
+    const wallNow = Date.now();
+    const jumped = Math.abs(missionNow - lastOrbitMissionRef.current) > ORBIT_JUMP_MS;
+    if (tleChanged || jumped || wallNow - lastOrbitWallRef.current > ORBIT_REBUILD_MS) {
+      lastOrbitWallRef.current = wallNow;
+      lastOrbitMissionRef.current = missionNow;
+
+      const od = orbitDatumRef.current;
+      od.id = satrecIdRef.current;
+      od.points = buildOrbitPoints(satrec, date);
+      setOrbitPaths([od]); // same datum, new array → geometry updated in place
     }
   }, [storeDate]);
-
-  useEffect(() => {
-    if (!satData) return;
-
-    // Fast update for satellite position
-    const gmst = gstime(time);
-    const eci = propagate(satData[0].satrec, time);
-    if (eci.position) {
-      const gdPos = eciToGeodetic(eci.position, gmst);
-      setSatPosition({
-        lat: radiansToDegrees(gdPos.latitude),
-        lng: radiansToDegrees(gdPos.longitude),
-        alt: gdPos.height / EARTH_RADIUS_KM
-      });
-    }
-
-    // Slower update for orbit path — throttled on WALL-CLOCK time, not mission
-    // time. Mission time can jump backwards (reset / scrub), which made
-    // `missionNow - last` hugely negative and froze the orbit forever while
-    // the sat marker kept moving → desync. A large mission jump forces an
-    // immediate recompute so reset re-syncs instantly.
-    const missionNow = time.getTime();
-    const wallNow = Date.now();
-    const missionJumped = Math.abs(missionNow - lastOrbitMission.current) > 60 * 1000;
-    if (wallNow - lastOrbitUpdate.current > 1000 || missionJumped) { // Update at most 1/sec, or immediately on jump
-      lastOrbitUpdate.current = wallNow;
-      lastOrbitMission.current = missionNow;
-
-      let OrbitPaths = []
-      let tiempo = new Date(time.getTime() - 30 * 60 * 1000)
-      let propi = {
-        "id": satData[0].id,
-      }
-      let points = []
-      for (let x = 0; x < 150; x++) {
-        let eci = propagate(satData[0].satrec, tiempo);
-        let gmst = gstime(tiempo);
-        let gdPos = eciToGeodetic(eci.position, gmst);
-        tiempo = new Date(tiempo.getTime() + (x * 600))
-        points.push([
-          radiansToDegrees(gdPos.latitude),
-          radiansToDegrees(gdPos.longitude),
-          (gdPos.height / EARTH_RADIUS_KM) / 10])
-      }
-      OrbitPaths.push({ points, propi })
-      setOrbitPaths(OrbitPaths);
-    }
-
-  }, [satData, time]);
-
-  const objectsData = useMemo(() => {
-    if (!satPosition || !satData) return [];
-    return [{ ...satData[0], ...satPosition }];
-  }, [satPosition, satData]);
-
 
   const satObject = useMemo(() => {
     if (!globeRadius) return undefined;
@@ -198,22 +172,6 @@ const World = (props) => {
     return () => { cancelled = true; };
   }, []);
 
-  useEffect(() => {
-    if (!globeEl.current || !satPosition) return;
-    try {
-      const { lat, lng } = satPosition;
-      const pov = globeEl.current.pointOfView();
-      // Center view on satellite (orbit + camera follow the sat)
-      globeEl.current.pointOfView({
-        lat,
-        lng,
-        altitude: pov.altitude
-      });
-    } catch { /* globe transitioning — skip this frame */ }
-  }, [satPosition]);
-
-
-
   if (!webglOK) {
     return (
       <div style={{ width: '100%', height: '100%', minHeight: '380px', display: 'flex', alignItems: 'center', justifyContent: 'center', background: 'var(--grouped-card)', padding: '24px', textAlign: 'center' }}>
@@ -228,12 +186,13 @@ const World = (props) => {
     );
   }
 
+  const fix = objectsData[0];
   const hud = {
-    tleName: satData?.[0]?.id,
-    hasFix: !!satPosition,
-    lat: satPosition ? satPosition.lat.toFixed(2) : '—',
-    lng: satPosition ? satPosition.lng.toFixed(2) : '—',
-    altKm: satPosition ? Math.round(satPosition.alt * EARTH_RADIUS_KM) : '—',
+    tleName: fix?.id,
+    hasFix: !!fix,
+    lat: fix ? fix.lat.toFixed(2) : '—',
+    lng: fix ? fix.lng.toFixed(2) : '—',
+    altKm: fix ? Math.round(fix.alt * EARTH_RADIUS_KM) : '—',
   };
 
   return (
@@ -247,21 +206,15 @@ const World = (props) => {
       objectsData={objectsData}
       objectLat="lat"
       objectLng="lng"
-      objectAlt="alt"
+      objectAltitude="alt"
       objectThreeObject={satObject}
       pathsData={orbitPaths}
       pathPoints="points"
       pathPointLat={p => p[0]}
       pathPointLng={p => p[1]}
       pathPointAlt={p => p[2]}
-      pathLabel={path => path.propi.id}
-      //pathDashLength={1}
-      //pathDashGap={0.008}
+      pathLabel={path => path.id}
       pathTransitionDuration={0}
-    //   arcColor={'color'}
-    //   arcDashLength={() => Math.random()}
-    //   arcDashGap={() => Math.random()}
-    // arcDashAnimateTime={() => Math.random() * 4000 + 500}
     />
 
     {/* Live telemetry HUD — proves the globe is driven by real data */}
