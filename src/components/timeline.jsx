@@ -9,14 +9,29 @@ const HOUR = 60 * MINUTE;
 const DAY = 24 * HOUR;
 const WEEK = 7 * DAY;
 
-// Mission-time milliseconds that pass per real second while playing.
-// (Same speed as before: 50 000 ms every 10 ms.)
-const PLAY_SPEED = 5_000_000;
+// 1× === realtime: one real second advances one mission second.
+const REALTIME_SPEED = 1_000; // mission-ms per real second at 1×
 const STORE_DEBOUNCE = 500;
 
-// Playback speed multipliers offered by the speed slider (× base PLAY_SPEED).
-const SPEED_STEPS = [0.25, 0.5, 1, 2, 4, 8, 16];
-const DEFAULT_SPEED_IDX = 2; // 1×
+// Speed slider is logarithmic: a fixed ratio between every step, so slow
+// speeds stay controllable while the top end can span the 3-year archive.
+const SPEED_MIN = 1.0;
+const SPEED_MAX = 10_000;
+const SPEED_RES = 1000;                 // slider detents (0…1000)
+const SPEED_RANGE = SPEED_MAX / SPEED_MIN;
+const DEFAULT_SPEED = 50;                // 3× realtime
+
+const clampSpeed = (m) => Math.min(Math.max(m, SPEED_MIN), SPEED_MAX);
+const posToSpeed = (p) => SPEED_MIN * Math.pow(SPEED_RANGE, Math.min(Math.max(p, 0), SPEED_RES) / SPEED_RES);
+const speedToPos = (m) => (SPEED_RES * Math.log(clampSpeed(m) / SPEED_MIN)) / Math.log(SPEED_RANGE);
+const fmtSpeed = (m) => {
+  const v =
+    m >= 1_000 ? `${m >= 10_000 ? Math.round(m / 1_000) : Math.round(m / 100) / 10}k`
+    : m >= 100 ? `${Math.round(m)}`
+    : m >= 10 ? `${Math.round(m * 10) / 10}`
+    : `${Math.round(m * 100) / 100}`;
+  return `${v}×`;
+};
 
 const BODY_TOP = 8;       // ruler body offset (room for the playhead pin)
 const BODY_HEIGHT = 34;   // ruler body height
@@ -235,17 +250,18 @@ const TimelineSlider = () => {
   const [isPlaying, setIsPlaying] = useState(false);
   const [dragging, setDragging] = useState(null);
   const [width, setWidth] = useState(640);
-  const [speedIdx, setSpeedIdx] = useState(DEFAULT_SPEED_IDX);
+  const [speed, setSpeed] = useState(DEFAULT_SPEED);
 
   const trackRef = useRef(null);
   const dragRef = useRef(null);
 
   // Read the live speed inside the rAF loop without re-running the effect
   // (changing speed mid-play must not restart the loop or reset `last`).
-  const speedRef = useRef(SPEED_STEPS[DEFAULT_SPEED_IDX]);
-  const setSpeed = useCallback((idx) => {
-    setSpeedIdx(idx);
-    speedRef.current = SPEED_STEPS[idx];
+  const speedRef = useRef(DEFAULT_SPEED);
+  const applySpeed = useCallback((mult) => {
+    const s = clampSpeed(mult);
+    setSpeed(s);
+    speedRef.current = s;
   }, []);
 
   const [startTimeMs, endTimeMs] = rangeValues;
@@ -285,7 +301,7 @@ const TimelineSlider = () => {
     const tick = (now) => {
       const dt = now - last;
       last = now;
-      setCurrentTimeMs((prev) => Math.min(prev + (dt * PLAY_SPEED * speedRef.current) / 1000, endTimeMs));
+      setCurrentTimeMs((prev) => Math.min(prev + (dt * REALTIME_SPEED * speedRef.current) / 1000, endTimeMs));
       raf = requestAnimationFrame(tick);
     };
     raf = requestAnimationFrame(tick);
@@ -309,7 +325,8 @@ const TimelineSlider = () => {
     setDebouncedRange([initialStartTime, initialEndTime]);
     setCurrentTimeMs(initialCurrentTime);
     setIsPlaying(false);
-  }, []);
+    applySpeed(DEFAULT_SPEED);
+  }, [applySpeed]);
 
   /* ── one place that moves any of the three handles ── */
   const applyValue = useCallback((kind, raw) => {
@@ -427,14 +444,14 @@ const TimelineSlider = () => {
             onClick={handleReset}
             className="apple-btn apple-btn-gray"
             style={{ minHeight: 40, minWidth: 40, fontSize: 15 }}
-            aria-label="Restablecer rango"
+            aria-label="Restablecer rango y velocidad"
           >
             ↺
           </button>
 
-          {/* Playback speed — discrete × steps, takes effect live while playing */}
+          {/* Playback speed — logarithmic scale (1× = realtime), live */}
           <label
-            title="Velocidad de reproducción"
+            title="Velocidad de reproducción (escala logarítmica · 1× = tiempo real)"
             style={{
               display: 'flex', alignItems: 'center', gap: 6,
               height: 40, padding: '0 12px', borderRadius: 999,
@@ -445,16 +462,16 @@ const TimelineSlider = () => {
             <input
               type="range"
               min={0}
-              max={SPEED_STEPS.length - 1}
+              max={SPEED_RES}
               step={1}
-              value={speedIdx}
-              onChange={(e) => setSpeed(Number(e.target.value))}
+              value={Math.round(speedToPos(speed))}
+              onChange={(e) => applySpeed(posToSpeed(Number(e.target.value)))}
               aria-label="Velocidad de reproducción de la línea de tiempo"
-              aria-valuetext={`${SPEED_STEPS[speedIdx]}×`}
-              style={{ width: 88, minHeight: 40, height: 40, margin: 0, accentColor: 'var(--system-blue)', cursor: 'pointer' }}
+              aria-valuetext={fmtSpeed(speed)}
+              style={{ width: 96, minHeight: 40, height: 40, margin: 0, accentColor: 'var(--system-blue)', cursor: 'pointer' }}
             />
-            <span className="sf-mono type-caption1" style={{ minWidth: 34, textAlign: 'right', fontWeight: 600, fontVariantNumeric: 'tabular-nums' }}>
-              {SPEED_STEPS[speedIdx]}×
+            <span className="sf-mono type-caption1" style={{ minWidth: 44, textAlign: 'right', fontWeight: 600, fontVariantNumeric: 'tabular-nums' }}>
+              {fmtSpeed(speed)}
             </span>
           </label>
         </div>
