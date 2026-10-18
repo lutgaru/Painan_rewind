@@ -385,6 +385,78 @@ body.nav-collapsed #large-title-wrap {
 .sat-photo img { transition: transform var(--spring-slow); }
 .sat-photo:hover img { transform: scale(1.04); }
 
+/* Gallery tile — opens the lightbox */
+.gallery-tile {
+  position: relative;
+  display: block;
+  width: 100%;
+  padding: 0;
+  border: 0;
+  background: transparent;
+  overflow: hidden;
+  cursor: zoom-in;
+  -webkit-tap-highlight-color: transparent;
+}
+.gallery-zoom-badge {
+  position: absolute;
+  top: 10px;
+  right: 10px;
+  width: 34px;
+  height: 34px;
+  padding: 7px;
+  border-radius: 999px;
+  color: #fff;
+  background: rgba(0, 0, 0, 0.45);
+  -webkit-backdrop-filter: saturate(180%) blur(12px);
+  backdrop-filter: saturate(180%) blur(12px);
+  opacity: 0;
+  transform: scale(0.85);
+  transition: opacity var(--spring-fast), transform var(--spring-bounce);
+  pointer-events: none;
+}
+.gallery-tile:hover .gallery-zoom-badge,
+.gallery-tile:focus-visible .gallery-zoom-badge { opacity: 1; transform: scale(1); }
+
+/* Lightbox theming — yet-another-react-lightbox mapped to HIG tokens */
+.yarl__root {
+  --yarl__color_backdrop: rgba(0, 0, 0, 0.94);
+  --yarl__color_button: rgba(255, 255, 255, 0.86);
+  --yarl__color_button_active: #ffffff;
+  --yarl__color_button_disabled: rgba(255, 255, 255, 0.28);
+  --yarl__slide_title_color: #ffffff;
+  --yarl__slide_title_font_weight: 600;
+  --yarl__slide_description_color: rgba(255, 255, 255, 0.92);
+  --yarl__slide_captions_container_background: transparent;
+  --yarl__counter_color: rgba(255, 255, 255, 0.72);
+  --yarl__thumbnails_container_background_color: rgba(0, 0, 0, 0.55);
+  --yarl__thumbnails_thumbnail_background: rgba(255, 255, 255, 0.08);
+  --yarl__thumbnails_thumbnail_border_color: transparent;
+  --yarl__thumbnails_thumbnail_active_border_color: var(--system-blue);
+  --yarl__thumbnails_thumbnail_border_radius: 10px;
+}
+.yarl__slide_description {
+  max-width: 620px;
+  margin-inline: auto;
+  font-size: 14px;
+  line-height: 1.45;
+  text-shadow: 0 1px 8px rgba(0, 0, 0, 0.85), 0 1px 2px rgba(0, 0, 0, 0.9);
+}
+
+/* Wide screens: show the caption at the top so it doesn't cover the data in the photo.
+   Mobile keeps the default (bottom). */
+@media (min-width: 1024px) {
+  .yarl__slide_description_container {
+    bottom: auto;
+    top: 0;
+    padding-top: 20px;
+  }
+}
+
+/* Hide site chrome while the lightbox is open — only the viewer remains */
+body.lightbox-open #apple-nav,
+body.lightbox-open .material-tab,
+body.lightbox-open #apple-nav + div { display: none !important; }
+
 /* Focus visibility — native-like */
 :focus-visible {
   outline: 2px solid var(--system-blue);
