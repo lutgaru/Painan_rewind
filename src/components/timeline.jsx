@@ -14,10 +14,10 @@ const WEEK = 7 * DAY;
 const PLAY_SPEED = 5_000_000;
 const STORE_DEBOUNCE = 500;
 
-const BODY_TOP = 10;      // ruler body offset (room for the playhead pin)
-const BODY_HEIGHT = 44;   // ruler body height
-const LABEL_TOP = BODY_TOP + BODY_HEIGHT + 6;
-const TRACK_HEIGHT = LABEL_TOP + 18;
+const BODY_TOP = 8;       // ruler body offset (room for the playhead pin)
+const BODY_HEIGHT = 34;   // ruler body height
+const LABEL_TOP = BODY_TOP + BODY_HEIGHT + 4;
+const TRACK_HEIGHT = LABEL_TOP + 16;
 
 const clamp = (v, lo, hi) => Math.min(Math.max(v, lo), hi);
 
@@ -387,7 +387,7 @@ const TimelineSlider = () => {
   return (
     <div
       className="apple-card"
-      style={{ padding: 20, borderRadius: 'var(--radius-l)' }}
+      style={{ padding: 14, borderRadius: 'var(--radius-l)' }}
       role="group"
       aria-label="Control de línea de tiempo"
     >
@@ -396,13 +396,13 @@ const TimelineSlider = () => {
       `}</style>
 
       {/* Controls + readouts */}
-      <div className="flex items-center justify-between flex-wrap" style={{ gap: 12, marginBottom: 14 }}>
+      <div className="flex items-center justify-between flex-wrap" style={{ gap: 10, marginBottom: 10 }}>
         <div className="flex items-center" style={{ gap: 8 }}>
           <button
             onClick={togglePlay}
             className="apple-btn"
             style={{
-              minHeight: 44, fontSize: 15, padding: '0 20px',
+              minHeight: 40, fontSize: 15, padding: '0 18px',
               background: isPlaying ? 'var(--system-red)' : 'var(--system-blue)',
               color: '#fff',
             }}
@@ -413,7 +413,7 @@ const TimelineSlider = () => {
           <button
             onClick={handleReset}
             className="apple-btn apple-btn-gray"
-            style={{ minHeight: 44, fontSize: 15 }}
+            style={{ minHeight: 40, minWidth: 40, fontSize: 15 }}
             aria-label="Restablecer rango"
           >
             ↺
@@ -430,7 +430,7 @@ const TimelineSlider = () => {
       </div>
 
       {/* The ruler: range + playhead in one control */}
-      <div style={{ padding: '0 18px' }}>
+      <div style={{ padding: '0 14px' }}>
         <div
           ref={trackRef}
           onPointerDown={onPointerDown}

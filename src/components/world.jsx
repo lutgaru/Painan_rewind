@@ -17,6 +17,11 @@ const EARTH_RADIUS_KM = 6371; // km
 const SAT_SIZE = 150; // km
 //const TIME_STEP = 1; // per frame
 
+const fmtUTC = new Intl.DateTimeFormat('es-MX', {
+  year: 'numeric', month: 'short', day: '2-digit',
+  hour: '2-digit', minute: '2-digit', second: '2-digit', hour12: false, timeZone: 'UTC',
+});
+
 function julianToDate(jd) {
   const Z = Math.floor(jd + 0.5);
   const F = jd + 0.5 - Z;
@@ -223,8 +228,16 @@ const World = (props) => {
     );
   }
 
+  const hud = {
+    tleName: satData?.[0]?.id,
+    hasFix: !!satPosition,
+    lat: satPosition ? satPosition.lat.toFixed(2) : '—',
+    lng: satPosition ? satPosition.lng.toFixed(2) : '—',
+    altKm: satPosition ? Math.round(satPosition.alt * EARTH_RADIUS_KM) : '—',
+  };
+
   return (
-    <div ref={containerRef} style={{ width: '100%', height: '100%' }}>
+    <div ref={containerRef} style={{ width: '100%', height: '100%', position: 'relative' }}>
     <Globe
 
       ref={globeEl}
@@ -250,6 +263,23 @@ const World = (props) => {
     //   arcDashGap={() => Math.random()}
     // arcDashAnimateTime={() => Math.random() * 4000 + 500}
     />
+
+    {/* Live telemetry HUD — proves the globe is driven by real data */}
+    <div className="globe-hud" aria-hidden="true">
+      <div style={{ display: 'flex', justifyContent: 'space-between', gap: 8, alignItems: 'flex-start' }}>
+        <span className="globe-chip sf-mono">{fmtUTC.format(new Date(storeDate))} UTC</span>
+        {hud.tleName && (
+          <span className="globe-chip sf-mono" style={{ maxWidth: '58%', overflow: 'hidden', textOverflow: 'ellipsis' }} title={hud.tleName}>
+            {hud.tleName}
+          </span>
+        )}
+      </div>
+      <div style={{ display: 'flex', gap: 6, flexWrap: 'wrap' }}>
+        <span className="globe-chip">{hud.hasFix ? <><b>{hud.lat}°</b><i>lat</i></> : <i>sin fix</i>}</span>
+        <span className="globe-chip">{hud.hasFix ? <><b>{hud.lng}°</b><i>lon</i></> : <i>sin fix</i>}</span>
+        <span className="globe-chip">{hud.hasFix ? <><b>{hud.altKm} km</b><i>alt</i></> : <i>sin fix</i>}</span>
+      </div>
+    </div>
     </div>
   );
 };

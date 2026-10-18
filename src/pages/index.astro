@@ -5,6 +5,7 @@ import Timeline from "../components/timeline.jsx";
 import ShortPlots from "../components/ShortPlots.jsx";
 import LongPlots from "../components/LongPlots.jsx";
 import painanitles from "../data/painanitles.json";
+import mission from "../data/mission.json";
 import Navbar from "../components/landing/Navbar.astro";
 import Hero from "../components/landing/Hero.astro";
 import Mission from "../components/landing/Mission.astro";
@@ -18,61 +19,58 @@ import MilestonesFooter from "../components/landing/MilestonesFooter.astro";
     <Hero />
     <Mission />
 
-    {/* Viaje / Rewind — grouped Apple cards */}
-    <section id="viaje" class="apple-gutter" style="padding-top: 32px; padding-bottom: 32px; scroll-margin-top: 72px">
-      <div class="reveal" style="margin-bottom: 16px">
-        <p class="type-eyebrow" style="color: var(--system-green)">● En vivo desde el archivo · Painan Rewind</p>
-        <h2 class="type-title1" style="margin-top: 4px">Revive el viaje.</h2>
-        <p class="type-callout" style="color: var(--secondary-label); margin-top: 8px; max-width: 680px">
-          Mueve la línea de tiempo para propagar la órbita con TLEs históricos y ver la telemetría real
-          de balizas cortas y largas. El globo sigue al satélite.
-        </p>
-      </div>
-
-      <div class="reveal" style="margin-bottom: 16px">
-        <Timeline client:only="react" />
-      </div>
-
-      <div class="voyage-grid">
-        <div class="apple-card reveal overflow-hidden" style="padding: 0">
-          <div class="flex items-center justify-between flex-wrap" style="gap: 8px; padding: 16px 20px 12px">
-            <h3 class="type-headline" style="font-size: 15px">Órbita propagada</h3>
-            <span class="sf-mono type-caption1 inline-flex min-h-[28px] items-center gap-2 rounded-full px-3" style="background: color-mix(in srgb, var(--system-green) 12%, transparent); color: var(--system-green); font-weight: 600">
-              <span aria-hidden="true" style="width: 7px; height: 7px; border-radius: 50%; background: currentColor"></span>
-              satellite.js
-            </span>
+    {/* Viaje / Rewind — mission-control dashboard (fits one viewport) */}
+    <section id="viaje" style="scroll-margin-top: 56px">
+      <div class="viaje-shell">
+        {/* Header + archive stats */}
+        <header class="viaje-head reveal">
+          <div>
+            <p class="type-eyebrow" style="color: var(--system-green)">● En vivo desde el archivo · Painan Rewind</p>
+            <h2 class="type-title2" style="margin-top: 2px">Revive el viaje.</h2>
+            <p class="type-footnote viaje-head-sub">
+              Mueve la línea de tiempo para propagar la órbita con TLEs históricos y ver la telemetría real.
+            </p>
           </div>
-          <div class="relative w-full" style="height: 55vh; min-height: 380px; background: #000; border-top: 0.5px solid var(--separator)">
-            <div class="absolute inset-0">
-              <World tle={painanitles[0]} client:only="react" />
+          <ul class="viaje-stats" aria-label="Resumen del archivo">
+            <li><strong>{mission.archive.shortBeacons.toLocaleString('es-MX')}</strong><span>balizas cortas</span></li>
+            <li><strong>{mission.archive.longBeacons.toLocaleString('es-MX')}</strong><span>balizas largas</span></li>
+            <li><strong>{mission.archive.tleCount.toLocaleString('es-MX')}</strong><span>TLEs históricos</span></li>
+            <li><strong>{mission.archive.coverage}</strong><span>cobertura</span></li>
+          </ul>
+        </header>
+
+        {/* Timeline */}
+        <div class="viaje-timeline reveal">
+          <Timeline client:only="react" />
+        </div>
+
+        {/* Dashboard */}
+        <div class="viaje-main">
+          <div class="viaje-col-globe reveal">
+            <h3 class="viaje-colhead sf-mono" style="color: var(--system-green)">
+              ÓRBITA PROPAGADA <span>satellite.js · el globo sigue al satélite</span>
+            </h3>
+            <div class="apple-card viaje-globe-card">
+              <div class="viaje-globe-stage">
+                <World tle={painanitles[0]} client:only="react" />
+              </div>
             </div>
           </div>
-          <p class="sf-mono type-caption2" style="color: var(--tertiary-label); padding: 12px 20px 16px; letter-spacing: 0.04em">
-            ARRASTRA PARA EXPLORAR · EL GLOBO SIGUE AL SATÉLITE
-          </p>
-        </div>
 
-        <div class="apple-card reveal" style="padding: 20px">
-          <h3 class="sf-mono type-caption1" style="color: var(--system-blue); letter-spacing: 0.08em">BALIZAS CORTAS</h3>
-          <p class="type-footnote" style="color: var(--secondary-label); margin-top: 4px">Temperaturas · voltajes · corrientes</p>
-          <div style="margin-top: 8px; max-height: 56vh; overflow-y: auto">
+          <div class="viaje-stack reveal">
+            <h3 class="viaje-colhead sf-mono" style="color: var(--system-blue)">
+              BALIZAS CORTAS <span>temperaturas · voltajes · corrientes</span>
+            </h3>
             <ShortPlots client:only="react" />
           </div>
-        </div>
-      </div>
 
-      <div class="apple-card reveal" style="padding: 20px; margin-top: 16px">
-        <div class="flex items-end justify-between flex-wrap" style="gap: 8px; margin-bottom: 8px">
-          <div>
-            <h3 class="sf-mono type-caption1" style="color: var(--system-blue); letter-spacing: 0.08em">BALIZAS LARGAS</h3>
-            <p class="type-footnote" style="color: var(--secondary-label); margin-top: 4px">Giróscopos · baterías · paneles</p>
-          </div>
-          <div class="apple-segmented" role="tablist" aria-label="Vista de gráficas">
-            <button role="tab" aria-selected="true" class="pressable">Giros</button>
-            <button role="tab" aria-selected="false" class="pressable">Energía</button>
+          <div class="viaje-stack reveal">
+            <h3 class="viaje-colhead sf-mono" style="color: var(--system-blue)">
+              BALIZAS LARGAS <span>giróscopos · baterías · paneles</span>
+            </h3>
+            <LongPlots client:only="react" />
           </div>
         </div>
-        <LongPlots client:only="react" />
       </div>
     </section>
 
@@ -82,8 +80,119 @@ import MilestonesFooter from "../components/landing/MilestonesFooter.astro";
 </Layout>
 
 <style>
-  .voyage-grid { display: grid; gap: 16px; grid-template-columns: 1fr; }
+  /* ==== #viaje mission-control dashboard =============================
+     One brief: the whole voyage view must fit a standard 28" display
+     (≈1080–1440px tall) without scrolling, while showing the maximum
+     amount of information. So the section owns exactly one viewport
+     (100dvh minus the 56px nav) and lays its data out as a grid that
+     grows/shrinks with the screen. */
+  #viaje {
+    --viaje-max: 1024px;
+    --viaje-gap: clamp(10px, 1.4vh, 16px);
+  }
+  @media (min-width: 1280px) { #viaje { --viaje-max: 1240px; } }
+  @media (min-width: 1600px) { #viaje { --viaje-max: 1440px; } }
+
+  .viaje-shell {
+    max-width: var(--viaje-max);
+    margin-inline: auto;
+    padding-inline: clamp(16px, 2vw, 32px);
+    padding-block: clamp(20px, 3vh, 40px);
+    display: grid;
+    gap: var(--viaje-gap);
+    align-content: start;
+  }
+
+  /* --- header + stats --- */
+  .viaje-head {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    gap: 16px 24px;
+    flex-wrap: wrap;
+  }
+  .viaje-head-sub { color: var(--secondary-label); margin-top: 4px; max-width: 620px; }
+  .viaje-stats {
+    display: flex;
+    gap: clamp(12px, 2vw, 28px);
+    margin: 0;
+    padding: 0;
+    list-style: none;
+    flex-wrap: wrap;
+  }
+  .viaje-stats li { display: flex; flex-direction: column; align-items: flex-start; }
+  .viaje-stats strong {
+    font: 700 16px/1.1 ui-monospace, SFMono-Regular, Menlo, monospace;
+    font-variant-numeric: tabular-nums;
+    color: var(--label);
+  }
+  .viaje-stats span {
+    font-size: 10px;
+    line-height: 1.4;
+    letter-spacing: 0.06em;
+    text-transform: uppercase;
+    color: var(--tertiary-label);
+  }
+
+  /* --- dashboard grid --- */
+  .viaje-main { display: grid; grid-template-columns: 1fr; gap: var(--viaje-gap); min-height: 0; }
+  .viaje-col-globe, .viaje-stack { min-height: 0; }
+  .viaje-col-globe { display: grid; grid-template-rows: auto auto; gap: 8px; }
+  .viaje-stack { display: grid; gap: 10px; }
+
+  .viaje-colhead {
+    margin: 0;
+    font-size: 11px;
+    font-weight: 700;
+    letter-spacing: 0.09em;
+    line-height: 1.3;
+    display: flex;
+    align-items: baseline;
+    gap: 8px;
+    flex-wrap: wrap;
+  }
+  .viaje-colhead span {
+    font-weight: 400;
+    color: var(--tertiary-label);
+    letter-spacing: 0.02em;
+    text-transform: none;
+  }
+
+  /* Globe card */
+  .viaje-globe-card {
+    display: flex;
+    flex-direction: column;
+    min-height: 0;
+    padding: 0;
+    overflow: hidden;
+    background: #000;
+  }
+  .viaje-globe-stage {
+    position: relative;
+    width: 100%;
+    flex: 1 1 auto;
+    min-height: 320px;
+  }
+
+  /* --- Desktop: lock to one viewport, 3 columns --- */
   @media (min-width: 1024px) {
-    .voyage-grid { grid-template-columns: 1.75fr 1fr; align-items: stretch; }
+    .viaje-shell {
+      height: calc(100dvh - 56px);
+      min-height: 780px;
+      padding-block: clamp(12px, 2.2vh, 32px);
+      grid-template-rows: auto auto minmax(0, 1fr);
+      align-content: stretch;
+    }
+    .viaje-main {
+      grid-template-columns: 1.6fr 1fr 1fr;
+      min-height: 0;
+    }
+    .viaje-col-globe {
+      grid-template-rows: auto minmax(0, 1fr);
+    }
+    .viaje-stack {
+      grid-template-rows: auto repeat(3, minmax(0, 1fr));
+    }
+    .viaje-globe-stage { height: 100%; min-height: 0; }
   }
 </style>

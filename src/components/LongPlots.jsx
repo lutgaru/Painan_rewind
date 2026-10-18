@@ -19,12 +19,19 @@ function ChartCard({ title, subtitle, children }) {
   return (
     <section
       className="apple-card"
-      style={{ padding: 16, borderRadius: 'var(--radius-m)', background: 'var(--secondary-grouped-card)', minWidth: 0, flex: '1 1 280px' }}
+      style={{
+        display: 'flex', flexDirection: 'column',
+        minWidth: 0, minHeight: 0,
+        padding: '10px 12px', borderRadius: 'var(--radius-m)',
+        background: 'var(--secondary-grouped-card)',
+      }}
       aria-label={title}
     >
-      <h4 className="sf-mono type-caption1" style={{ letterSpacing: '0.06em', color: 'var(--secondary-label)' }}>{title}</h4>
-      {subtitle && <p className="type-footnote" style={{ color: 'var(--tertiary-label)', marginTop: 2 }}>{subtitle}</p>}
-      <div style={{ marginTop: 8 }}>{children}</div>
+      <header style={{ display: 'flex', alignItems: 'baseline', justifyContent: 'space-between', gap: 8, minWidth: 0 }}>
+        <h4 className="sf-mono type-caption1" style={{ letterSpacing: '0.05em', color: 'var(--secondary-label)', whiteSpace: 'nowrap', overflow: 'hidden', textOverflow: 'ellipsis' }}>{title}</h4>
+        {subtitle && <span className="type-caption2" style={{ color: 'var(--tertiary-label)', whiteSpace: 'nowrap' }}>{subtitle}</span>}
+      </header>
+      <div style={{ flex: '1 1 auto', minHeight: 150, minWidth: 0 }}>{children}</div>
     </section>
   );
 }
@@ -47,15 +54,15 @@ function LongPlots(props) {
   const fmt = (t) => moment(t).format('DD/MM/YY HH:mm');
 
   return (
-    <div className="flex flex-col lg:flex-row" style={{ gap: 12 }}>
+    <div style={{ display: 'contents' }}>
       <ChartCard title="GIRÓSCOPOS · X / Y / Z" subtitle="°/s · baliza larga">
-        <ResponsiveContainer width="100%" height={220}>
-          <LineChart data={listofvals.gyrolarge} margin={{ top: 5, right: 4, left: -12, bottom: 5 }}>
+        <ResponsiveContainer width="100%" height="100%">
+          <LineChart data={listofvals.gyrolarge} margin={{ top: 4, right: 4, left: -14, bottom: 0 }}>
             <CartesianGrid strokeDasharray="3 3" stroke="var(--separator)" vertical={false} />
             <XAxis dataKey="name" stroke="var(--separator)" tick={tick} tickFormatter={fmt} domain={['auto', 'auto']} scale="time" type="number" tickCount={4} />
-            <YAxis stroke="var(--separator)" tick={tick} width={48} domain={[-300, 300]} />
+            <YAxis stroke="var(--separator)" tick={tick} width={44} domain={[-300, 300]} />
             <Tooltip contentStyle={tooltipStyle} labelFormatter={fmt} />
-            <Legend wrapperStyle={{ fontSize: 12 }} />
+            <Legend wrapperStyle={{ fontSize: 11, paddingTop: 0 }} iconSize={8} />
             <Line type="monotone" dataKey="gyrox" stroke="#ff9f0a" strokeWidth={2} dot={false} />
             <Line type="monotone" dataKey="gyroy" stroke="var(--system-green)" strokeWidth={2} dot={false} />
             <Line type="monotone" dataKey="gyroz" stroke="var(--system-blue)" strokeWidth={2} dot={false} />
@@ -64,13 +71,13 @@ function LongPlots(props) {
       </ChartCard>
 
       <ChartCard title="BATERÍAS · CAPACIDAD" subtitle="mAh · bancos 1 / 2">
-        <ResponsiveContainer width="100%" height={220}>
-          <LineChart data={listofvals.chargecapacity} margin={{ top: 5, right: 4, left: -12, bottom: 5 }}>
+        <ResponsiveContainer width="100%" height="100%">
+          <LineChart data={listofvals.chargecapacity} margin={{ top: 4, right: 4, left: -14, bottom: 0 }}>
             <CartesianGrid strokeDasharray="3 3" stroke="var(--separator)" vertical={false} />
             <XAxis dataKey="name" stroke="var(--separator)" tick={tick} tickFormatter={fmt} domain={['auto', 'auto']} scale="time" type="number" tickCount={4} />
-            <YAxis stroke="var(--separator)" tick={tick} width={48} />
+            <YAxis stroke="var(--separator)" tick={tick} width={44} />
             <Tooltip contentStyle={tooltipStyle} labelFormatter={fmt} />
-            <Legend wrapperStyle={{ fontSize: 12 }} />
+            <Legend wrapperStyle={{ fontSize: 11, paddingTop: 0 }} iconSize={8} />
             <Line type="monotone" dataKey="BankChar1" stroke="var(--system-blue)" strokeWidth={2} dot={false} />
             <Line type="monotone" dataKey="BankChar2" stroke="var(--system-green)" strokeWidth={2} dot={false} />
           </LineChart>
@@ -78,13 +85,13 @@ function LongPlots(props) {
       </ChartCard>
 
       <ChartCard title="BATERÍAS · VOLTAJE" subtitle="V · bancos 1 / 2">
-        <ResponsiveContainer width="100%" height={220}>
-          <LineChart data={listofvals.batvolts} margin={{ top: 5, right: 4, left: -12, bottom: 5 }}>
+        <ResponsiveContainer width="100%" height="100%">
+          <LineChart data={listofvals.batvolts} margin={{ top: 4, right: 4, left: -14, bottom: 0 }}>
             <CartesianGrid strokeDasharray="3 3" stroke="var(--separator)" vertical={false} />
             <XAxis dataKey="name" stroke="var(--separator)" tick={tick} tickFormatter={fmt} domain={['auto', 'auto']} scale="time" type="number" tickCount={4} />
-            <YAxis stroke="var(--separator)" tick={tick} width={48} />
+            <YAxis stroke="var(--separator)" tick={tick} width={44} />
             <Tooltip contentStyle={tooltipStyle} labelFormatter={fmt} />
-            <Legend wrapperStyle={{ fontSize: 12 }} />
+            <Legend wrapperStyle={{ fontSize: 11, paddingTop: 0 }} iconSize={8} />
             <Line type="monotone" dataKey="BankVolt1" stroke="var(--system-blue)" strokeWidth={2} dot={false} />
             <Line type="monotone" dataKey="BankVolt2" stroke="var(--system-green)" strokeWidth={2} dot={false} />
           </LineChart>
