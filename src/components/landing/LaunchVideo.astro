@@ -1,0 +1,160 @@
+---
+import mission from "../../data/mission.json";
+
+const { youtubeId, start, title, description } = mission.launchVideo;
+const poster = `https://i.ytimg.com/vi/${youtubeId}/maxresdefault.jpg`;
+const posterFallback = `https://i.ytimg.com/vi/${youtubeId}/hqdefault.jpg`;
+---
+<section id="lanzamiento" class="apple-gutter" style="padding-top: 32px; padding-bottom: 32px; scroll-margin-top: 72px">
+  <div class="reveal" style="margin-bottom: 16px">
+    <p class="type-eyebrow" style="color: var(--system-orange)">Video</p>
+    <h2 class="type-title1" style="margin-top: 4px">Painani-1 en video.</h2>
+    <p class="type-callout" style="color: var(--secondary-label); margin-top: 8px; max-width: 640px">{description}</p>
+  </div>
+
+  <div class="apple-card launch-video-card reveal">
+    <button
+      type="button"
+      class="launch-video-facade"
+      data-launch-video
+      data-video-id={youtubeId}
+      data-video-start={start}
+      data-video-title={title}
+      aria-label={`Reproducir video: ${title}`}
+    >
+      <img
+        class="launch-video-poster"
+        src={poster}
+        data-fallback={posterFallback}
+        alt=""
+        loading="lazy"
+        decoding="async"
+      />
+      <span class="launch-video-scrim" aria-hidden="true"></span>
+      <span class="launch-video-play" aria-hidden="true">
+        <svg width="34" height="34" viewBox="0 0 34 34" fill="currentColor"><path d="M12 8.5v17l14-8.5z" /></svg>
+      </span>
+      <span class="launch-video-meta">
+        <span class="sf-mono type-caption1" style="letter-spacing: 0.08em; color: rgba(255, 255, 255, 0.72)">VIDEO · CICESE</span>
+        <span class="type-headline" style="color: #fff">{title}</span>
+      </span>
+    </button>
+  </div>
+</section>
+
+<script>
+  // Click-to-load YouTube facade: keeps third-party JS off the critical path.
+  (() => {
+    const posters = document.querySelectorAll<HTMLImageElement>(".launch-video-poster");
+    posters.forEach((img) => {
+      img.addEventListener(
+        "error",
+        () => {
+          const fb = img.dataset.fallback;
+          if (fb && img.src !== fb) img.src = fb;
+        },
+        { once: true }
+      );
+    });
+
+    document.querySelectorAll<HTMLButtonElement>("[data-launch-video]").forEach((btn) => {
+      btn.addEventListener(
+        "click",
+        () => {
+          const id = btn.dataset.videoId;
+          const start = btn.dataset.videoStart || "0";
+          const iframe = document.createElement("iframe");
+          iframe.className = "launch-video-frame";
+          iframe.src = `https://www.youtube-nocookie.com/embed/${id}?autoplay=1&start=${start}&rel=0&modestbranding=1&playsinline=1`;
+          iframe.title = btn.dataset.videoTitle || "Video";
+          iframe.setAttribute(
+            "allow",
+            "accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture; web-share"
+          );
+          iframe.allowFullscreen = true;
+          btn.replaceWith(iframe);
+        },
+        { once: true }
+      );
+    });
+  })();
+</script>
+
+<style>
+  .launch-video-card {
+    position: relative;
+    padding: 0;
+    overflow: hidden;
+    border-radius: var(--radius-xl);
+    background: #000;
+    aspect-ratio: 16 / 9;
+    max-height: 70vh;
+  }
+  .launch-video-facade,
+  .launch-video-frame {
+    position: absolute;
+    inset: 0;
+    width: 100%;
+    height: 100%;
+    border: 0;
+  }
+  .launch-video-facade {
+    display: block;
+    padding: 0;
+    cursor: pointer;
+    background: #000;
+    color: #fff;
+    -webkit-tap-highlight-color: transparent;
+  }
+  .launch-video-facade::after {
+    content: "";
+    position: absolute;
+    inset: 0;
+    box-shadow: inset 0 0 0 0.5px var(--separator);
+    border-radius: inherit;
+    pointer-events: none;
+  }
+  .launch-video-poster {
+    width: 100%;
+    height: 100%;
+    object-fit: cover;
+    display: block;
+    transition: transform var(--spring-slow);
+  }
+  .launch-video-facade:hover .launch-video-poster { transform: scale(1.03); }
+  .launch-video-scrim {
+    position: absolute;
+    inset: 0;
+    background: linear-gradient(180deg, rgba(0, 0, 0, 0.15) 0%, rgba(0, 0, 0, 0.55) 100%);
+  }
+  .launch-video-play {
+    position: absolute;
+    top: 50%;
+    left: 50%;
+    transform: translate(-50%, -50%);
+    width: 76px;
+    height: 76px;
+    display: grid;
+    place-items: center;
+    border-radius: 999px;
+    color: #fff;
+    background: rgba(10, 132, 255, 0.92);
+    box-shadow: var(--shadow-3);
+    padding-left: 4px;
+    transition: transform var(--spring-bounce), background-color var(--spring-fast);
+  }
+  .launch-video-facade:hover .launch-video-play {
+    transform: translate(-50%, -50%) scale(1.08);
+    background: var(--system-blue);
+  }
+  .launch-video-meta {
+    position: absolute;
+    left: 20px;
+    right: 20px;
+    bottom: 18px;
+    display: flex;
+    flex-direction: column;
+    gap: 4px;
+    text-align: left;
+  }
+</style>

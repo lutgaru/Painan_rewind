@@ -1,0 +1,439 @@
+/* ============================================================
+   PAINANI-1 · Kiosko (single-page, two-column distribution)
+   Target: 28" display @ 1920×1080 (16:9). Fluid via vmin so it
+   also scales to 1440p/4K. No scroll, one viewport.
+
+   Layout (three columns):
+     COL 1  → video (arriba) · ficha + satélite (abajo)
+     COL 2  → galería de fotos (centro)
+     COL 3  → globo 3D + telemetría (derecha)
+   ============================================================ */
+
+html.kiosk-root {
+  font-size: clamp(14px, 1.6vmin, 22px);
+  background: #000;
+}
+
+body.kiosk-body {
+  margin: 0;
+  height: 100dvh;
+  overflow: hidden;
+  background: #000;
+  color: #fff;
+}
+
+.kiosk {
+  position: fixed;
+  inset: 0;
+  display: grid;
+  grid-template-rows: auto minmax(0, 1fr);
+  overflow: hidden;
+  color: #fff;
+  background:
+    radial-gradient(130% 120% at 50% -10%, #0c1018 0%, #05060a 55%, #000 100%);
+}
+
+/* ── Top bar ─────────────────────────────────────────────── */
+.kiosk-top {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 1rem;
+  padding: 0.65rem 1.6rem;
+  border-bottom: 1px solid rgba(255, 255, 255, 0.08);
+  background: rgba(8, 9, 12, 0.72);
+  -webkit-backdrop-filter: saturate(160%) blur(20px);
+  backdrop-filter: saturate(160%) blur(20px);
+}
+.kiosk-brand {
+  display: flex;
+  align-items: center;
+  gap: 0.6rem;
+  font-weight: 700;
+  letter-spacing: 0.02em;
+  white-space: nowrap;
+}
+.kiosk-dot {
+  width: 0.7rem;
+  height: 0.7rem;
+  border-radius: 50%;
+  background: var(--system-green);
+  box-shadow: 0 0 0 0.22rem color-mix(in srgb, var(--system-green) 22%, transparent);
+}
+.kiosk-brand-sub {
+  font-family: ui-monospace, SFMono-Regular, Menlo, monospace;
+  font-size: 0.72rem;
+  letter-spacing: 0.14em;
+  color: rgba(255, 255, 255, 0.48);
+}
+.kiosk-toolbar { display: flex; align-items: center; gap: 0.5rem; }
+.kiosk-clock {
+  font-size: 0.9rem;
+  color: rgba(255, 255, 255, 0.82);
+  font-variant-numeric: tabular-nums;
+  white-space: nowrap;
+}
+.kiosk-icon-btn {
+  display: inline-grid;
+  place-items: center;
+  width: 2.4rem;
+  height: 2.4rem;
+  border-radius: 0.7rem;
+  border: 0.5px solid rgba(255, 255, 255, 0.12);
+  background: rgba(255, 255, 255, 0.05);
+  color: #fff;
+  cursor: pointer;
+  text-decoration: none;
+  transition: background-color var(--spring-fast), transform var(--spring-fast);
+}
+.kiosk-icon-btn:hover { background: rgba(255, 255, 255, 0.14); }
+.kiosk-icon-btn:active { transform: scale(0.94); }
+
+/* ── Main grid ───────────────────────────────────────────── */
+.kiosk-main {
+  display: grid;
+  grid-template-columns: minmax(0, 0.85fr) minmax(0, 1.2fr) minmax(0, 0.85fr);
+  gap: 1.2rem;
+  padding: 1.2rem 1.6rem;
+  min-height: 0;
+}
+
+.kiosk-section-label {
+  margin: 0;
+  font-family: ui-monospace, SFMono-Regular, Menlo, monospace;
+  font-size: 0.72rem;
+  letter-spacing: 0.13em;
+  text-transform: uppercase;
+  color: rgba(255, 255, 255, 0.55);
+}
+
+/* ── COL 1 · título · video · ficha + satélite ───────────── */
+.kiosk-left {
+  display: grid;
+  grid-template-rows: auto auto minmax(0, 1fr);
+  gap: 1rem;
+  min-height: 0;
+}
+
+.kiosk-left-top {
+  display: grid;
+  grid-template-columns: minmax(0, 1.12fr) minmax(0, 0.88fr);
+  gap: 1rem;
+  min-height: 0;
+}
+
+.kiosk-sat-img {
+  display: grid;
+  place-items: center;
+  min-height: 0;
+  overflow: hidden;
+}
+.kiosk-sat-img img {
+  max-width: min(100%, 34rem);
+  max-height: 100%;
+  object-fit: contain;
+  filter: drop-shadow(0 1.4rem 2.6rem rgba(0, 0, 0, 0.55));
+}
+/* gentle idle float, like the landing hero */
+@media (prefers-reduced-motion: no-preference) {
+  .kiosk-sat-img img { animation: kiosk-float 7s ease-in-out infinite; }
+}
+@keyframes kiosk-float {
+  0%, 100% { transform: translateY(0); }
+  50% { transform: translateY(-0.6rem); }
+}
+
+.kiosk-sat-info { display: flex; flex-direction: column; gap: 0.7rem; }
+.kiosk-sat-about { display: flex; flex-direction: column; gap: 0.4rem; }
+.kiosk-sat-summary {
+  margin: 0;
+  font-size: 0.8rem;
+  line-height: 1.45;
+  color: rgba(255, 255, 255, 0.66);
+}
+.kiosk-sat-dates {
+  margin: 0;
+  display: flex;
+  align-items: baseline;
+  gap: 0.5rem;
+  font-family: ui-monospace, SFMono-Regular, Menlo, monospace;
+  font-size: 0.68rem;
+  letter-spacing: 0.04em;
+  color: rgba(255, 255, 255, 0.5);
+}
+.kiosk-sat-dates strong {
+  font-weight: 600;
+  font-variant-numeric: tabular-nums;
+  color: rgba(255, 255, 255, 0.85);
+}
+.kiosk-sat-head {
+  display: flex;
+  align-items: flex-start;
+  justify-content: space-between;
+  gap: 0.6rem 1rem;
+  flex-wrap: wrap;
+}
+.kiosk-sat-name {
+  margin: 0;
+  font-size: 2.1rem;
+  line-height: 1;
+  letter-spacing: -0.02em;
+  font-weight: 700;
+}
+.kiosk-sat-full {
+  margin: 0.3rem 0 0;
+  font-size: 0.86rem;
+  color: rgba(255, 255, 255, 0.6);
+}
+.kiosk-pill {
+  flex-shrink: 0;
+  display: inline-flex;
+  align-items: center;
+  gap: 0.4rem;
+  padding: 0.3rem 0.8rem;
+  border-radius: 999px;
+  font-size: 0.76rem;
+  font-weight: 600;
+  color: var(--system-green);
+  background: color-mix(in srgb, var(--system-green) 16%, transparent);
+  white-space: nowrap;
+}
+
+.kiosk-fact-grid {
+  list-style: none;
+  margin: 0;
+  padding: 0;
+  display: grid;
+  grid-template-columns: repeat(2, minmax(0, 1fr));
+  gap: 0.45rem 0.6rem;
+}
+.kiosk-fact-grid li {
+  display: flex;
+  flex-direction: column;
+  gap: 0.1rem;
+  padding: 0.45rem 0.65rem;
+  border-radius: 0.65rem;
+  background: rgba(255, 255, 255, 0.05);
+  border: 0.5px solid rgba(255, 255, 255, 0.08);
+}
+.kiosk-fact-grid span {
+  font-size: 0.64rem;
+  letter-spacing: 0.08em;
+  text-transform: uppercase;
+  color: rgba(255, 255, 255, 0.48);
+}
+.kiosk-fact-grid strong { font-size: 0.85rem; font-weight: 600; }
+
+.kiosk-stats {
+  display: grid;
+  grid-template-columns: repeat(3, minmax(0, 1fr));
+  gap: 0.6rem;
+  padding-top: 0.2rem;
+}
+.kiosk-stats-caption {
+  margin: -0.2rem 0 0;
+  font-family: ui-monospace, SFMono-Regular, Menlo, monospace;
+  font-size: 0.66rem;
+  letter-spacing: 0.04em;
+  color: rgba(255, 255, 255, 0.48);
+}
+.kiosk-stats strong {
+  display: block;
+  font: 700 1.15rem/1.1 ui-monospace, SFMono-Regular, Menlo, monospace;
+  font-variant-numeric: tabular-nums;
+}
+.kiosk-stats span {
+  font-size: 0.62rem;
+  letter-spacing: 0.05em;
+  text-transform: uppercase;
+  color: rgba(255, 255, 255, 0.48);
+}
+
+.kiosk-video-panel { display: flex; flex-direction: column; gap: 0.5rem; min-height: 0; }
+.kiosk-video-slot { min-height: 0; }
+.kiosk-video-frame {
+  position: relative;
+  width: 100%;
+  aspect-ratio: 16 / 9;
+  background: #000;
+  border: 0.5px solid rgba(255, 255, 255, 0.14);
+  border-radius: 0.9rem;
+  overflow: hidden;
+  box-shadow: var(--shadow-2);
+}
+.kiosk-video-frame iframe { position: absolute; inset: 0; width: 100%; height: 100%; border: 0; }
+
+/* ── COL 2 · galería · COL 3 · globo + telemetría ────────── */
+.kiosk-panel { display: flex; flex-direction: column; gap: 0.5rem; min-height: 0; min-width: 0; }
+
+/* Grid/flex items default to min-width:auto, so wide chart headers and
+   legends force the telemetry track to overflow onto the gallery. Pin every
+   nested container to min-width:0 so ResponsiveContainer can shrink. */
+.kiosk-left,
+.kiosk-left-top,
+.kiosk-live,
+.kiosk-panel,
+.kiosk-chartgrid,
+.kiosk-sat-head,
+.kiosk-sat-info,
+.kiosk-sat-img { min-width: 0; }
+
+/* Carousel */
+.kiosk-carousel {
+  flex: 1 1 auto;
+  min-height: 0;
+  display: grid;
+  grid-template-rows: minmax(0, 1fr) auto;
+  gap: 0.6rem;
+}
+.kiosk-car-main {
+  position: relative;
+  min-height: 0;
+  border-radius: 0.9rem;
+  overflow: hidden;
+  background: #0b0d11;
+  border: 0.5px solid rgba(255, 255, 255, 0.1);
+}
+.kiosk-slide {
+  position: absolute;
+  inset: 0;
+  margin: 0;
+  opacity: 0;
+  transition: opacity 0.8s ease;
+}
+.kiosk-slide.is-active { opacity: 1; }
+.kiosk-slide img { width: 100%; height: 100%; object-fit: contain; display: block; }
+.kiosk-slide figcaption {
+  position: absolute;
+  left: 0;
+  right: 0;
+  bottom: 0;
+  display: flex;
+  flex-direction: column;
+  gap: 0.15rem;
+  padding: 2rem 1rem 0.9rem;
+  background: linear-gradient(transparent, rgba(0, 0, 0, 0.8));
+}
+.kiosk-slide-title { font-size: 1rem; font-weight: 600; }
+.kiosk-slide-desc {
+  font-size: 0.8rem;
+  color: rgba(255, 255, 255, 0.66);
+  display: -webkit-box;
+  -webkit-line-clamp: 2;
+  -webkit-box-orient: vertical;
+  overflow: hidden;
+  max-width: 72ch;
+}
+.kiosk-car-nav {
+  position: absolute;
+  top: 50%;
+  transform: translateY(-50%);
+  width: 2.6rem;
+  height: 2.6rem;
+  border-radius: 999px;
+  border: 0.5px solid rgba(255, 255, 255, 0.2);
+  background: rgba(0, 0, 0, 0.45);
+  -webkit-backdrop-filter: saturate(160%) blur(10px);
+  backdrop-filter: saturate(160%) blur(10px);
+  color: #fff;
+  font-size: 1.5rem;
+  line-height: 1;
+  cursor: pointer;
+  display: grid;
+  place-items: center;
+  transition: background-color var(--spring-fast), transform var(--spring-fast);
+}
+.kiosk-car-nav:hover { background: rgba(0, 0, 0, 0.7); }
+.kiosk-car-nav:active { transform: translateY(-50%) scale(0.92); }
+.kiosk-car-nav.is-prev { left: 0.8rem; }
+.kiosk-car-nav.is-next { right: 0.8rem; }
+.kiosk-car-thumbs {
+  display: flex;
+  gap: 0.4rem;
+  flex-shrink: 0;
+}
+.kiosk-car-thumb {
+  flex: 1 1 0;
+  min-width: 0;
+  aspect-ratio: 16 / 10;
+  padding: 0;
+  border: 0;
+  border-radius: 0.4rem;
+  overflow: hidden;
+  background: #101216;
+  cursor: pointer;
+  opacity: 0.5;
+  outline: 0.5px solid rgba(255, 255, 255, 0.12);
+  outline-offset: -0.5px;
+  transition: opacity var(--spring-fast), outline-color var(--spring-fast), transform var(--spring-fast);
+}
+.kiosk-car-thumb img { width: 100%; height: 100%; object-fit: cover; display: block; }
+.kiosk-car-thumb:hover { opacity: 0.85; }
+.kiosk-car-thumb.is-active {
+  opacity: 1;
+  outline: 2px solid var(--system-blue);
+  outline-offset: -2px;
+  transform: translateY(-0.15rem);
+}
+
+/* Live: globe (top) + telemetry (bottom) */
+.kiosk-live {
+  display: grid;
+  grid-template-rows: minmax(0, 0.95fr) minmax(0, 1.05fr);
+  gap: 1rem;
+  min-height: 0;
+}
+.kiosk-globe-card {
+  position: relative;
+  flex: 1 1 auto;
+  min-height: 0;
+  background: #000;
+  border: 0.5px solid rgba(255, 255, 255, 0.12);
+  border-radius: 0.9rem;
+  overflow: hidden;
+}
+.kiosk-globe-foot { flex-shrink: 0; }
+.kiosk-globe-readout {
+  display: flex;
+  align-items: baseline;
+  justify-content: space-between;
+  gap: 1rem;
+  padding: 0.5rem 0.75rem;
+  border-radius: 0.6rem;
+  background: rgba(255, 255, 255, 0.05);
+  border: 0.5px solid rgba(255, 255, 255, 0.08);
+}
+.kiosk-globe-readout span {
+  font-size: 0.68rem;
+  letter-spacing: 0.06em;
+  text-transform: uppercase;
+  color: rgba(255, 255, 255, 0.5);
+}
+.kiosk-globe-readout strong {
+  font-size: 0.88rem;
+  font-weight: 600;
+  font-variant-numeric: tabular-nums;
+}
+
+.kiosk-tele-panel { min-height: 0; }
+.kiosk-chartgrid {
+  flex: 1 1 auto;
+  display: grid;
+  grid-template-columns: repeat(3, minmax(0, 1fr));
+  grid-template-rows: repeat(2, minmax(0, 1fr));
+  gap: 0.6rem;
+  min-height: 0;
+}
+/* Charts inherit HIG tokens; dark theme already lightens text. */
+.kiosk .recharts-cartesian-axis-tick-value { font-size: 12px; }
+
+/* ── Narrow fallback (kiosk is designed for wide displays) ── */
+@media (max-width: 1100px) {
+  .kiosk-brand-sub { display: none; }
+  .kiosk-main { grid-template-columns: minmax(0, 1fr); overflow: auto; }
+  .kiosk-left { grid-template-rows: auto auto; }
+  .kiosk-left-top, .kiosk-live { grid-template-columns: minmax(0, 1fr); }
+  .kiosk-left-top, .kiosk-live { grid-template-rows: auto auto; }
+  .kiosk-globe-card { min-height: 22rem; }
+  .kiosk-chartgrid { grid-template-columns: repeat(2, minmax(0, 1fr)); grid-template-rows: auto; }
+}

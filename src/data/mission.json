@@ -4,6 +4,11 @@
   "tagline": "El mensajero veloz de México — revive su viaje completo.",
   "status": "Misión finalizada · Archivo del viaje",
   "description": "Fue un nanosatélite experimental 3U CubeSat diseñado, construido y ensamblado por el grupo de Investigación Avanzada en Sistemas de Telecomunicaciones (ARTS) del Departamento de Electrónica y Telecomunicaciones del CICESE en 2018 bajo el estándar CubeSat. Patrocinado por la Secretaría de la Defensa Nacional (SEDENA), sirvió como plataforma de aprendizaje e investigación para la Universidad del Ejército y Fuerza Aérea Mexicana. Fue el primer nanosatélite desarrollado por una institución académica mexicana transferido a un usuario.",
+  "summary": "Nanosatélite experimental 3U CubeSat diseñado y construido por el CICESE en 2018 con patrocinio de la SEDENA. Fue el primer nanosatélite de una institución académica mexicana transferido a un usuario.",
+  "missionDates": {
+    "launch": "29 jun 2019",
+    "end": "2023"
+  },
   "quickFacts": [
     { "label": "Plataforma", "value": "3U CubeSat · 3.3 kg" },
     { "label": "Lanzamiento", "value": "29 Jun 2019 · Electron KS" },
@@ -28,6 +33,12 @@
     "site": "Onenui Station LC-1A, Mahía, Nueva Zelanda",
     "rideshare": "BlackSky Global 3, Prometheus 2.7 / 2.9, ACRUX-1, SpaceBEE 8 y 9",
     "note": "Dato curioso: Voló como carga comercial no revelada; fue identificada semanas después por la Agencia Espacial de Nueva Zelanda."
+  },
+  "launchVideo": {
+    "youtubeId": "pI3Ck5FWviA",
+    "start": 0,
+    "title": "Painani-1 · Nanosatélite mexicano",
+    "description": "Video del CICESE sobre Painani-1, el primer nanosatélite desarrollado por una institución académica mexicana y transferido a un usuario."
   },
   "archive": {
     "shortBeacons": 16164,

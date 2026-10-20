@@ -241,23 +241,24 @@ const Handle = ({ kind, pct, value, min, max, label, dragging, onKeyDown }) => {
 
 /* ───────────────────────── component ───────────────────────── */
 
-const TimelineSlider = () => {
+const TimelineSlider = ({ autoPlay = false, defaultSpeed = DEFAULT_SPEED } = {}) => {
   const { range: [storeStartTime, storeEndTime], date: storeDate } = useStore(timeDataStore);
+  const initialSpeed = clampSpeed(defaultSpeed);
 
   const [rangeValues, setRangeValues] = useState([storeStartTime, storeEndTime]);
   const [debouncedRange, setDebouncedRange] = useState(rangeValues);
   const [currentTimeMs, setCurrentTimeMs] = useState(storeDate);
-  const [isPlaying, setIsPlaying] = useState(false);
+  const [isPlaying, setIsPlaying] = useState(!!autoPlay);
   const [dragging, setDragging] = useState(null);
   const [width, setWidth] = useState(640);
-  const [speed, setSpeed] = useState(DEFAULT_SPEED);
+  const [speed, setSpeed] = useState(initialSpeed);
 
   const trackRef = useRef(null);
   const dragRef = useRef(null);
 
   // Read the live speed inside the rAF loop without re-running the effect
   // (changing speed mid-play must not restart the loop or reset `last`).
-  const speedRef = useRef(DEFAULT_SPEED);
+  const speedRef = useRef(initialSpeed);
   const applySpeed = useCallback((mult) => {
     const s = clampSpeed(mult);
     setSpeed(s);

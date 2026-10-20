@@ -3,7 +3,7 @@ import { XAxis, YAxis, CartesianGrid, Tooltip, Legend, ResponsiveContainer, Area
 import moment from 'moment';
 import { getdatagraphsShort } from '../scripts/downloaders.ts'
 import { useStore } from '@nanostores/react';
-import { timeDataStore } from '../scripts/timeData.ts';
+import { timeRangeStore } from '../scripts/timeData.ts';
 
 const tick = { fill: 'var(--tertiary-label)', fontSize: 11, fontFamily: 'ui-monospace, SFMono-Regular, Menlo, monospace' };
 const tooltipStyle = {
@@ -37,8 +37,7 @@ function ChartCard({ title, subtitle, children }) {
 }
 
 function ShortPlots(props) {
-  const $timeDataStore = useStore(timeDataStore);
-  const { range: storeRange } = $timeDataStore;
+  const storeRange = useStore(timeRangeStore);
   const [listofvals, setlistofvals] = useState({})
 
   useEffect(() => {

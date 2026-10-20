@@ -47,7 +47,7 @@ const base = import.meta.env.BASE_URL;
         if (n) n.classList.toggle("is-scrolled", y > 24);
         document.body.classList.toggle("nav-collapsed", y > 120);
         // Scrollspy for tab bar + desktop nav
-        const sections = ["mision", "viaje", "fotos", "nave", "hitos"];
+        const sections = ["mision", "lanzamiento", "viaje", "fotos", "nave", "hitos"];
         let current = "";
         for (const id of sections) {
           const el = document.getElementById(id);
