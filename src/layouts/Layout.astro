@@ -20,20 +20,7 @@ const base = import.meta.env.BASE_URL;
     <meta name="generator" content={Astro.generator} />
     <meta name="description" content={description} />
     <title>{title}</title>
-    <script is:inline>
-      // Theme init — no FOUC. Default dark (space), respect saved choice.
-      try {
-        const saved = localStorage.getItem("painani-theme");
-        const root = document.documentElement;
-        if (saved === "light" || saved === "dark") {
-          root.setAttribute("data-theme", saved);
-        } else if (window.matchMedia("(prefers-color-scheme: light)").matches) {
-          root.setAttribute("data-theme", "light");
-        } else {
-          root.setAttribute("data-theme", "dark");
-        }
-      } catch {}
-    </script>
+
   </head>
   <body>
     <slot />
@@ -79,17 +66,6 @@ const base = import.meta.env.BASE_URL;
       const watch = () => document.querySelectorAll(".reveal:not(.is-visible)").forEach((el) => io.observe(el));
       watch();
       new MutationObserver(watch).observe(document.body, { childList: true, subtree: true });
-
-      // Theme toggle
-      document.addEventListener("click", (e) => {
-        const btn = e.target.closest("[data-theme-toggle]");
-        if (!btn) return;
-        const root = document.documentElement;
-        const next = root.getAttribute("data-theme") === "dark" ? "light" : "dark";
-        root.setAttribute("data-theme", next);
-        try { localStorage.setItem("painani-theme", next); } catch {}
-        btn.setAttribute("aria-pressed", String(next === "dark"));
-      });
     </script>
     <style>
       body { padding-bottom: calc(76px + env(safe-area-inset-bottom)); }

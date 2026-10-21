@@ -29,7 +29,7 @@ const links = [
         ))}
       </div>
 
-      {/* Trailing: kiosk + theme + action */}
+      {/* Trailing: kiosk */}
       <div class="flex items-center gap-2">
         <a
           href={kioskHref}
@@ -44,36 +44,10 @@ const links = [
           </svg>
           <span class="hidden sm:inline">Kiosko</span>
         </a>
-        <button
-          data-theme-toggle
-          aria-pressed="true"
-          aria-label="Cambiar entre modo claro y oscuro"
-          class="pressable flex min-h-[44px] min-w-[44px] items-center justify-center rounded-full"
-          style="background: var(--fill-tertiary)"
-        >
-          <svg class="icon-sun" width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round">
-            <circle cx="12" cy="12" r="4" />
-            <path d="M12 2v2M12 20v2M4.9 4.9l1.4 1.4M17.7 17.7l1.4 1.4M2 12h2M20 12h2M4.9 19.1l1.4-1.4M17.7 6.3l1.4-1.4" />
-          </svg>
-        </button>
-        <a href="#viaje" class="apple-btn apple-btn-filled" style="min-height: 40px; font-size: 15px; padding: 0 18px">
-          <svg width="12" height="12" viewBox="0 0 12 12" fill="currentColor" aria-hidden="true"><path d="M3 1.5v9l7-4.5z" /></svg>
-          Rewind
-        </a>
       </div>
     </div>
   </div>
 </nav>
 <div aria-hidden="true" style="height: 56px"></div>
 
-<style>
-  .icon-sun { display: none; }
-  [data-theme="light"] .icon-sun { display: block; }
-  [data-theme="dark"] [data-theme-toggle]::after {
-    content: "";
-    width: 20px; height: 20px;
-    display: block;
-    background: currentColor;
-    mask: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 24 24' fill='none' stroke='black' stroke-width='2' stroke-linecap='round'%3E%3Cpath d='M21 12.8A9 9 0 1 1 11.2 3 7 7 0 0 0 21 12.8z'/%3E%3C/svg%3E") center / contain no-repeat;
-  }
-</style>
+
