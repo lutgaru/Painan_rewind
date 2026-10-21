@@ -65,6 +65,11 @@ const posterFallback = `https://i.ytimg.com/vi/${youtubeId}/hqdefault.jpg`;
           const start = btn.dataset.videoStart || "0";
           const iframe = document.createElement("iframe");
           iframe.className = "launch-video-frame";
+          iframe.style.position = "absolute";
+          iframe.style.inset = "0";
+          iframe.style.width = "100%";
+          iframe.style.height = "100%";
+          iframe.style.border = "0";
           iframe.src = `https://www.youtube-nocookie.com/embed/${id}?autoplay=1&start=${start}&rel=0&modestbranding=1&playsinline=1`;
           iframe.title = btn.dataset.videoTitle || "Video";
           iframe.setAttribute(
@@ -89,9 +94,11 @@ const posterFallback = `https://i.ytimg.com/vi/${youtubeId}/hqdefault.jpg`;
     background: #000;
     aspect-ratio: 16 / 9;
     max-height: 70vh;
+    max-width: calc(70vh * 16 / 9);
+    margin-inline: auto;
   }
   .launch-video-facade,
-  .launch-video-frame {
+  :global(.launch-video-frame) {
     position: absolute;
     inset: 0;
     width: 100%;
